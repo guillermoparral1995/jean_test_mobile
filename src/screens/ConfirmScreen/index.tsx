@@ -1,0 +1,32 @@
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { RootStackParamList } from '../../App'
+import { useSelector } from 'react-redux'
+import { currentInvoice } from '../../store/selectors'
+import { useApi } from '../../api'
+import { Button, Text, View } from 'tamagui'
+
+const ConfirmScreen: React.FC<
+  NativeStackScreenProps<RootStackParamList, 'Confirm'>
+> = ({ navigation }) => {
+  const invoiceToCreate = useSelector(currentInvoice)
+  const apiClient = useApi()
+
+  const handleCreate = async () => {
+    try {
+      const response = await apiClient.postInvoices(null, {
+        invoice: invoiceToCreate,
+      })
+      navigation.navigate('Success')
+    } catch (e) {
+      console.error(e.message)
+    }
+  }
+  return (
+    <View>
+      <Text>{JSON.stringify(invoiceToCreate)}</Text>
+      <Button onPress={handleCreate}>Confirm</Button>
+    </View>
+  )
+}
+
+export default ConfirmScreen
