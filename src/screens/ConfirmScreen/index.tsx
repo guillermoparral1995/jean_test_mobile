@@ -13,12 +13,13 @@ const ConfirmScreen: React.FC<
 
   const handleCreate = async () => {
     try {
-      const response = await apiClient.postInvoices(null, {
+      await apiClient.postInvoices(null, {
         invoice: invoiceToCreate,
       })
       navigation.navigate('Success')
     } catch (e) {
-      console.error(e.message)
+      console.error(e)
+      navigation.navigate('Error')
     }
   }
   return (

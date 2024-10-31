@@ -8,14 +8,16 @@ import { type RootStackParamList } from '../../App'
 import { type Components } from '../../api/generated/client'
 import ListItem from '../../components/ListItem'
 import { setInvoiceCustomer } from '../../store/invoiceSlice'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { currentInvoiceCustomer } from '../../store/selectors'
 
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
 > = ({ navigation }) => {
+  const currentCustomer = useSelector(currentInvoiceCustomer)
   const [selectedCustomer, setSelectedCustomer] = useState<
     Components.Schemas.Customer | undefined
-  >()
+  >(currentCustomer)
   const [customerSearch, setCustomerSearch] = useState<string>('')
   const [customers, setCustomers] = useState<Components.Schemas.Customer[]>([])
   const apiClient = useApi()
@@ -51,7 +53,7 @@ const CustomerScreen: React.FC<
 
   const handleContinue = () => {
     if (selectedCustomer) {
-      dispatch(setInvoiceCustomer(selectedCustomer.id))
+      dispatch(setInvoiceCustomer(selectedCustomer))
       navigation.navigate('Products')
     }
   }
@@ -66,7 +68,7 @@ const CustomerScreen: React.FC<
       <Input onChangeText={(e) => handleChange(e)} value={customerSearch} />
       {selectedCustomer && (
         <Card onPress={handleRemoveSelection}>
-          <Text>{selectedCustomer?.first_name}</Text>
+          <Text>{selectedCustomer.first_name}</Text>
         </Card>
       )}
       <FlatList

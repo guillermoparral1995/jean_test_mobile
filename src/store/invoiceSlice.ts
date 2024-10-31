@@ -3,7 +3,9 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { Components } from '../api/generated/client'
 import { Invoice, InvoiceCreatePayload } from '../types'
 
-const initialState: InvoiceCreatePayload = {
+const initialState: InvoiceCreatePayload & {
+  customer?: Components.Schemas.Customer
+} = {
   // setting initial customer id as a negative value since it's a required field as a way to identify an invoice still in process of
   customer_id: -1,
   finalized: false,
@@ -14,15 +16,25 @@ export const invoiceSlice = createSlice({
   name: 'invoice',
   initialState,
   reducers: {
-    setInvoice: (state, action: PayloadAction<Invoice>) => {
+    setInvoice: (
+      state,
+      action: PayloadAction<
+        Invoice & { customer?: Components.Schemas.Customer }
+      >,
+    ) => {
       state.customer_id = action.payload.customer_id!
       state.date = action.payload.date
       state.deadline = action.payload.deadline
       state.paid = action.payload.paid
       state.invoice_lines_attributes = action.payload.invoice_lines
+      state.customer = action.payload.customer
     },
-    setInvoiceCustomer: (state, action: PayloadAction<number>) => {
-      state.customer_id = action.payload
+    setInvoiceCustomer: (
+      state,
+      action: PayloadAction<Components.Schemas.Customer>,
+    ) => {
+      state.customer_id = action.payload.id
+      state.customer = action.payload
     },
     setInvoiceProducts: (
       state,

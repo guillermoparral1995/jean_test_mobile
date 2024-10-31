@@ -6,3 +6,5 @@ export type State = ReturnType<typeof store.getState>
 export type Invoice = Paths.GetInvoices.Responses.$200['invoices'][0]
 
 export type InvoiceCreatePayload = Components.Schemas.InvoiceCreatePayload
+
+export type InvoiceUpdatePayload = Components.Schemas.InvoiceUpdatePayload

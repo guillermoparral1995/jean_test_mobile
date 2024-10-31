@@ -10,6 +10,7 @@ import { Paths } from '../../api/generated/client'
 import ListItem from '../../components/ListItem'
 import { useDispatch } from 'react-redux'
 import { setInvoice } from '../../store/invoiceSlice'
+import { InvoiceUpdatePayload } from '../../types'
 
 type Invoice = Paths.GetInvoices.Responses.$200['invoices'][0]
 
@@ -52,7 +53,23 @@ const HomeScreen: React.FC<
     }
   }
 
-  const handleFinalizeInvoice = () => {}
+  const handleFinalizeInvoice = async () => {
+    if (selectedInvoice) {
+      try {
+        const payload: InvoiceUpdatePayload = {
+          ...selectedInvoice,
+          customer_id: selectedInvoice.customer_id!,
+          finalized: true,
+        }
+        await apiClient.putInvoice(selectedInvoice.id, {
+          invoice: payload,
+        })
+        fetchInvoices()
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
 
   const handleDeleteInvoice = async () => {
     if (selectedInvoice) {
@@ -78,6 +95,7 @@ const HomeScreen: React.FC<
                 item={item}
                 label={item.customer!.first_name}
                 onSelect={handleSelect}
+                isFinalized={item.finalized}
               />
             )
           }}
@@ -97,8 +115,15 @@ const HomeScreen: React.FC<
         <Sheet.Handle />
         <Sheet.Frame>
           <YStack>
-            <Button onPress={handleEditInvoice}>Edit invoice</Button>
-            <Button onPress={handleFinalizeInvoice}>Finalize invoice</Button>
+            {!selectedInvoice?.finalized && (
+              <>
+                <Button onPress={handleEditInvoice}>Edit invoice</Button>
+                <Button onPress={handleFinalizeInvoice}>
+                  Finalize invoice
+                </Button>
+              </>
+            )}
+
             <Button onPress={handleDeleteInvoice}>Delete invoice</Button>
           </YStack>
         </Sheet.Frame>
