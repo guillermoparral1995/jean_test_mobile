@@ -1,4 +1,3 @@
-import { store } from './'
+import { State } from '../types'
 
-export const currentInvoice = (state: ReturnType<typeof store.getState>) =>
-  state.invoice
+export const currentInvoice = (state: State) => state.invoice

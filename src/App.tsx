@@ -5,7 +5,7 @@ import defaultConfig from '@tamagui/config/v3'
 import React from 'react'
 import Config from 'react-native-config'
 import { Provider as ReduxProvider } from 'react-redux'
-import { TamaguiProvider, createTamagui } from 'tamagui'
+import { TamaguiProvider, createTamagui, PortalProvider } from 'tamagui'
 
 import { ApiProvider } from './api'
 import CustomerScreen from './screens/CustomerScreen'
@@ -37,19 +37,21 @@ const App = () => {
         url={String(Config.API_URL)}
         token={String(Config.API_TOKEN)}
       >
-        <ReduxProvider store={store}>
-          <NavigationContainer>
-            <Stack.Navigator>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Customer" component={CustomerScreen} />
-              <Stack.Screen name="Products" component={ProductsScreen} />
-              <Stack.Screen name="Dates" component={DateScreen} />
-              <Stack.Screen name="Confirm" component={ConfirmScreen} />
-              <Stack.Screen name="Success" component={SuccessScreen} />
-              <Stack.Screen name="Error" component={ErrorScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </ReduxProvider>
+        <PortalProvider shouldAddRootHost>
+          <ReduxProvider store={store}>
+            <NavigationContainer>
+              <Stack.Navigator>
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Customer" component={CustomerScreen} />
+                <Stack.Screen name="Products" component={ProductsScreen} />
+                <Stack.Screen name="Dates" component={DateScreen} />
+                <Stack.Screen name="Confirm" component={ConfirmScreen} />
+                <Stack.Screen name="Success" component={SuccessScreen} />
+                <Stack.Screen name="Error" component={ErrorScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </ReduxProvider>
+        </PortalProvider>
       </ApiProvider>
     </TamaguiProvider>
   )

@@ -1,7 +1,7 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
 import { FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { View, Text, Input } from 'tamagui'
+import { View, Text, Input, Button, Card } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type RootStackParamList } from '../../App'
@@ -13,6 +13,9 @@ import { useDispatch } from 'react-redux'
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
 > = ({ navigation }) => {
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    Components.Schemas.Customer | undefined
+  >()
   const [customerSearch, setCustomerSearch] = useState<string>('')
   const [customers, setCustomers] = useState<Components.Schemas.Customer[]>([])
   const apiClient = useApi()
@@ -29,6 +32,8 @@ const CustomerScreen: React.FC<
         } catch (e) {
           console.error(e)
         }
+      } else {
+        setCustomers([])
       }
     }
 
@@ -40,14 +45,30 @@ const CustomerScreen: React.FC<
   }
 
   const handleSelect = (customer: Components.Schemas.Customer) => {
-    dispatch(setInvoiceCustomer(customer.id))
-    navigation.navigate('Products')
+    setSelectedCustomer(customer)
+    setCustomerSearch('')
+  }
+
+  const handleContinue = () => {
+    if (selectedCustomer) {
+      dispatch(setInvoiceCustomer(selectedCustomer.id))
+      navigation.navigate('Products')
+    }
+  }
+
+  const handleRemoveSelection = () => {
+    setSelectedCustomer(undefined)
   }
 
   return (
     <View>
       <Text>Who are you creating this invoice for?</Text>
       <Input onChangeText={(e) => handleChange(e)} value={customerSearch} />
+      {selectedCustomer && (
+        <Card onPress={handleRemoveSelection}>
+          <Text>{selectedCustomer?.first_name}</Text>
+        </Card>
+      )}
       <FlatList
         data={customers}
         renderItem={({ item }: { item: Components.Schemas.Customer }) => (
@@ -59,6 +80,9 @@ const CustomerScreen: React.FC<
         )}
         keyExtractor={(item: Components.Schemas.Customer) => item.id.toString()}
       />
+      <Button disabled={!selectedCustomer} onPress={handleContinue}>
+        Continue
+      </Button>
     </View>
   )
 }
