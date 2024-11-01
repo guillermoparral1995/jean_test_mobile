@@ -4,19 +4,22 @@ import { RootStackParamList } from '../../App'
 import { Button, Input, Text, View } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { FlatList } from 'react-native'
 import ListItem from '../../components/ListItem'
 import { setInvoiceProducts } from '../../store/invoiceSlice'
+import { SelectedProduct, SelectedProducts } from '../../types'
+import { currentInvoiceProducts } from '../../store/selectors'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
 > = ({ navigation }) => {
+  const currentSelectedProducts = useSelector(currentInvoiceProducts)
   const [productSearch, setProductSearch] = useState<string>('')
   const [products, setProducts] = useState<Components.Schemas.Product[]>([])
-  const [selectedProducts, setSelectedProducts] = useState<
-    Record<string, { product: Components.Schemas.Product; qty: number }>
-  >({})
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProducts>(
+    currentSelectedProducts,
+  )
   const apiClient = useApi()
   const dispatch = useDispatch()
 
@@ -64,9 +67,7 @@ const ProductsScreen: React.FC<
     setProductSearch('')
   }
 
-  const handleMore = (
-    entry: [string, { product: Components.Schemas.Product; qty: number }],
-  ) => {
+  const handleMore = (entry: SelectedProduct) => {
     const [label, { product, qty }] = entry
     setSelectedProducts({
       ...selectedProducts,
@@ -77,9 +78,7 @@ const ProductsScreen: React.FC<
     })
   }
 
-  const handleLess = (
-    entry: [string, { product: Components.Schemas.Product; qty: number }],
-  ) => {
+  const handleLess = (entry: SelectedProduct) => {
     const [label, { product, qty }] = entry
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -116,9 +115,7 @@ const ProductsScreen: React.FC<
         />
       ) : null}
       {Object.entries(selectedProducts).length ? (
-        <FlatList<
-          [string, { product: Components.Schemas.Product; qty: number }]
-        >
+        <FlatList<SelectedProduct>
           data={Object.entries(selectedProducts)}
           renderItem={({ item }) => (
             <ListItem

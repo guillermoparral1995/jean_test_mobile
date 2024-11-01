@@ -1,76 +1,31 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { Components } from '../api/generated/client'
-import { Invoice, InvoiceCreatePayload } from '../types'
+import { Invoice, InvoiceState, SelectedProducts } from '../types'
+import { mapInvoiceToState } from '../utils'
 
-const initialState: InvoiceCreatePayload & {
-  customer?: Components.Schemas.Customer
-} = {
-  // setting initial customer id as a negative value since it's a required field as a way to identify an invoice still in process of
-  customer_id: -1,
-  finalized: false,
+const initialState: InvoiceState = {
+  date: null,
+  deadline: null,
   paid: true,
+  finalized: false,
+  products: {},
 }
 
 export const invoiceSlice = createSlice({
   name: 'invoice',
   initialState,
   reducers: {
-    setInvoice: (
-      state,
-      action: PayloadAction<
-        Invoice & { customer?: Components.Schemas.Customer }
-      >,
-    ) => {
-      state.customer_id = action.payload.customer_id!
-      state.date = action.payload.date
-      state.deadline = action.payload.deadline
-      state.paid = action.payload.paid
-      state.invoice_lines_attributes = action.payload.invoice_lines
-      state.customer = action.payload.customer
-    },
+    setInvoice: (_state, action: PayloadAction<Invoice>) =>
+      mapInvoiceToState(action.payload),
     setInvoiceCustomer: (
       state,
       action: PayloadAction<Components.Schemas.Customer>,
     ) => {
-      state.customer_id = action.payload.id
       state.customer = action.payload
     },
-    setInvoiceProducts: (
-      state,
-      action: PayloadAction<
-        Record<string, { product: Components.Schemas.Product; qty: number }>
-      >,
-    ) => {
-      const invoiceLines: Components.Schemas.InvoiceLineCreatePayload[] =
-        Object.entries(action.payload).map(
-          (
-            entry: [
-              string,
-              { product: Components.Schemas.Product; qty: number },
-            ],
-          ) => {
-            const [_label, { product, qty }] = entry
-
-            const {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              id,
-              unit_price,
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              unit_price_without_tax,
-              unit_tax,
-              ...restProduct
-            } = product
-            return {
-              ...restProduct,
-              product_id: product.id,
-              quantity: qty,
-              price: unit_price,
-              tax: unit_tax,
-            }
-          },
-        )
-      state.invoice_lines_attributes = invoiceLines
+    setInvoiceProducts: (state, action: PayloadAction<SelectedProducts>) => {
+      state.products = action.payload
     },
     setInvoiceDate: (state, action: PayloadAction<string>) => {
       state.date = action.payload

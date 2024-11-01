@@ -6,13 +6,10 @@ import { View, Button, Sheet, YStack } from 'tamagui'
 import { useApi } from '../../api'
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
 import { type RootStackParamList } from '../../App'
-import { Paths } from '../../api/generated/client'
 import ListItem from '../../components/ListItem'
 import { useDispatch } from 'react-redux'
 import { setInvoice } from '../../store/invoiceSlice'
-import { InvoiceUpdatePayload } from '../../types'
-
-type Invoice = Paths.GetInvoices.Responses.$200['invoices'][0]
+import { Invoice, InvoiceUpdatePayload } from '../../types'
 
 const HomeScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Home'>

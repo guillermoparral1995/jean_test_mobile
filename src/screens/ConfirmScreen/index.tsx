@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { currentInvoice } from '../../store/selectors'
 import { useApi } from '../../api'
 import { Button, Text, View } from 'tamagui'
+import { mapStateToCreatePayload } from '../../utils'
 
 const ConfirmScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Confirm'>
@@ -14,7 +15,7 @@ const ConfirmScreen: React.FC<
   const handleCreate = async () => {
     try {
       await apiClient.postInvoices(null, {
-        invoice: invoiceToCreate,
+        invoice: mapStateToCreatePayload(invoiceToCreate),
       })
       navigation.navigate('Success')
     } catch (e) {
