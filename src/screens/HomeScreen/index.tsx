@@ -84,7 +84,7 @@ const HomeScreen: React.FC<
 
   return (
     <>
-      <View padding={20} gap={20}>
+      <View flex={1} padding={20} gap={20}>
         <H1>My invoices</H1>
         <Button
           borderColor="lightgreen"

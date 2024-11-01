@@ -1,7 +1,7 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
-import { FlatList, StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Text, Button, View, Separator, debounce } from 'tamagui'
+import { Text, Button, View, debounce } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type RootStackParamList } from '../../App'
@@ -10,9 +10,9 @@ import ListItem from '../../components/ListItem'
 import { setInvoiceCustomer } from '../../store/invoiceSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { currentInvoiceCustomer } from '../../store/selectors'
-import SearchBar from '../../components/SearchBar'
 import { getFullName } from '../../utils'
 import { X as IconX } from '@tamagui/lucide-icons'
+import SearchBox from '../../components/SearchBox'
 
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
@@ -76,10 +76,14 @@ const CustomerScreen: React.FC<
   return (
     <View style={styles.container}>
       <Text>Who are you creating this invoice for?</Text>
-      <SearchBar
-        onChangeText={handleChange}
-        value={customerSearch}
+      <SearchBox
+        onChangeQuery={handleChange}
+        query={customerSearch}
         onCancel={handleCancel}
+        options={customers}
+        renderLabel={getFullName}
+        onSelect={handleSelect}
+        keyExtractor={(customer) => customer.id.toString()}
       />
       {selectedCustomer && (
         <ListItem
@@ -90,19 +94,6 @@ const CustomerScreen: React.FC<
           iconAfter={IconX}
         />
       )}
-      <FlatList
-        style={styles.searchResults}
-        data={customers}
-        renderItem={({ item }: { item: Components.Schemas.Customer }) => (
-          <ListItem
-            item={item}
-            label={getFullName(item)}
-            onSelect={handleSelect}
-          />
-        )}
-        keyExtractor={(item: Components.Schemas.Customer) => item.id.toString()}
-        ItemSeparatorComponent={Separator}
-      />
       <Button
         backgroundColor="white"
         disabled={!selectedCustomer}

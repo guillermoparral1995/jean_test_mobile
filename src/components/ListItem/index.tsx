@@ -28,15 +28,14 @@ const ListItem = <T extends object>({
 }: CardProps<T>) => {
   return (
     <TamaguiListItem
+      borderWidth={hasSeparatedItems ? 1 : undefined}
       borderRadius={hasSeparatedItems ? 10 : undefined}
-      margin={hasSeparatedItems ? 10 : undefined}
-      padding={10}
+      marginVertical={hasSeparatedItems ? 10 : undefined}
       onPress={onSelect ? () => onSelect(item) : null}
       backgroundColor={isFinalized ? 'lightgreen' : undefined}
       title={label}
       subTitle={subLabel}
       iconAfter={hasOptions ? EllipsisVertical : iconAfter}
-      size={20}
     >
       {onMore && onLess && (
         <XGroup>

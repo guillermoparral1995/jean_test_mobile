@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../App'
-import { Button, Input, Text, View } from 'tamagui'
+import { Button, Text, View } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
-import { FlatList } from 'react-native'
+import { FlatList, StyleSheet } from 'react-native'
 import ListItem from '../../components/ListItem'
 import { setInvoiceProducts } from '../../store/invoiceSlice'
 import { SelectedProduct, SelectedProducts } from '../../types'
 import { currentInvoiceProducts } from '../../store/selectors'
+import SearchBox from '../../components/SearchBox'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
@@ -44,6 +45,10 @@ const ProductsScreen: React.FC<
 
   const handleChange = async (e: string) => {
     setProductSearch(e)
+  }
+
+  const handleCancel = () => {
+    setProductSearch('')
   }
 
   const handleSelect = (product: Components.Schemas.Product) => {
@@ -102,18 +107,17 @@ const ProductsScreen: React.FC<
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       <Text>What should be included in the invoice?</Text>
-      <Input onChangeText={(e) => handleChange(e)} value={productSearch} />
-      {products.length ? (
-        <FlatList<Components.Schemas.Product>
-          data={products}
-          renderItem={({ item }) => (
-            <ListItem item={item} label={item.label} onSelect={handleSelect} />
-          )}
-          keyExtractor={(item) => item.id.toString()}
-        />
-      ) : null}
+      <SearchBox
+        onChangeQuery={handleChange}
+        onCancel={handleCancel}
+        query={productSearch}
+        options={products}
+        onSelect={handleSelect}
+        renderLabel={(item) => item.label}
+        keyExtractor={(item) => item.id.toString()}
+      />
       {Object.entries(selectedProducts).length ? (
         <FlatList<SelectedProduct>
           data={Object.entries(selectedProducts)}
@@ -124,6 +128,7 @@ const ProductsScreen: React.FC<
               subLabel={item[1].qty.toString()}
               onMore={handleMore}
               onLess={handleLess}
+              hasSeparatedItems
             />
           )}
           keyExtractor={(item) => item[1].product.id.toString()}
@@ -138,5 +143,14 @@ const ProductsScreen: React.FC<
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 20,
+    gap: 20,
+  },
+})
 
 export default ProductsScreen

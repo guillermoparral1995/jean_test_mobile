@@ -6,14 +6,6 @@ import {
   SelectedProducts,
 } from './types'
 
-export const debounce = (fn: () => void, timeout: number) => {
-  let timeoutId: NodeJS.Timeout
-  return () => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(fn, timeout)
-  }
-}
-
 export const getFullName = (customer: Components.Schemas.Customer) =>
   `${customer.first_name} ${customer.last_name}`
 
