@@ -20,6 +20,8 @@
     "@tamagui/core": "1.115.5",
     "@tamagui/lucide-icons": "1.115.5",
     "@tanstack/react-query": "^5.24.8",
+    "expo-linear-gradient": "^13.0.2",
+    "expo-modules-core": "^1.12.26",
     "openapi-client-axios": "7.5.4",
     "react": "18.2.0",
     "react-native": "0.72.6",

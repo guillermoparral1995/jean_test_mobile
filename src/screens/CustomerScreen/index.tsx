@@ -1,7 +1,7 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
 import { StyleSheet } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Text, Button, View, debounce } from 'tamagui'
+import { Text, View, debounce } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type RootStackParamList } from '../../App'
@@ -13,6 +13,7 @@ import { currentInvoiceCustomer } from '../../store/selectors'
 import { getFullName } from '../../utils'
 import { X as IconX } from '@tamagui/lucide-icons'
 import SearchBox from '../../components/SearchBox'
+import ContinueButton from '../../components/ContinueButton'
 
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
@@ -94,13 +95,7 @@ const CustomerScreen: React.FC<
           iconAfter={IconX}
         />
       )}
-      <Button
-        backgroundColor="white"
-        disabled={!selectedCustomer}
-        onPress={handleContinue}
-      >
-        Continue
-      </Button>
+      <ContinueButton disabled={!selectedCustomer} onPress={handleContinue} />
     </View>
   )
 }
@@ -108,7 +103,6 @@ const CustomerScreen: React.FC<
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     padding: 20,
     gap: 20,
   },

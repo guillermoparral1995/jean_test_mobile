@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../../App'
-import { Button, Text, View } from 'tamagui'
+import { debounce, Text, View } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -11,6 +11,8 @@ import { setInvoiceProducts } from '../../store/invoiceSlice'
 import { SelectedProduct, SelectedProducts } from '../../types'
 import { currentInvoiceProducts } from '../../store/selectors'
 import SearchBox from '../../components/SearchBox'
+import QuantitySelector from '../../components/QuantitySelector'
+import ContinueButton from '../../components/ContinueButton'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
@@ -24,24 +26,28 @@ const ProductsScreen: React.FC<
   const apiClient = useApi()
   const dispatch = useDispatch()
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      if (productSearch !== '') {
-        try {
-          const response = await apiClient.getSearchProducts({
-            query: productSearch,
-          })
-          setProducts(response.data.products)
-        } catch (e) {
-          console.error(e)
-        }
-      } else {
-        setProducts([])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchProducts = useCallback(
+    debounce(async (query: string) => {
+      try {
+        const response = await apiClient.getSearchProducts({
+          query,
+        })
+        setProducts(response.data.products)
+      } catch (e) {
+        console.error(e)
       }
-    }
+    }, 500),
+    [apiClient],
+  )
 
-    fetchProducts()
-  }, [apiClient, productSearch])
+  useEffect(() => {
+    if (productSearch !== '') {
+      fetchProducts(productSearch)
+    } else {
+      setProducts([])
+    }
+  }, [fetchProducts, productSearch])
 
   const handleChange = async (e: string) => {
     setProductSearch(e)
@@ -118,28 +124,31 @@ const ProductsScreen: React.FC<
         renderLabel={(item) => item.label}
         keyExtractor={(item) => item.id.toString()}
       />
-      {Object.entries(selectedProducts).length ? (
-        <FlatList<SelectedProduct>
-          data={Object.entries(selectedProducts)}
-          renderItem={({ item }) => (
-            <ListItem
-              item={item}
-              label={item[1].product.label}
-              subLabel={item[1].qty.toString()}
-              onMore={handleMore}
-              onLess={handleLess}
-              hasSeparatedItems
-            />
-          )}
-          keyExtractor={(item) => item[1].product.id.toString()}
-        />
-      ) : null}
-      <Button
+
+      <FlatList<SelectedProduct>
+        data={Object.entries(selectedProducts)}
+        renderItem={({ item }) => (
+          <ListItem
+            item={item}
+            label={item[1].product.label}
+            subLabel={item[1].qty.toString()}
+            onMore={handleMore}
+            onLess={handleLess}
+            hasSeparatedItems
+            iconAfter={
+              <QuantitySelector
+                onMore={() => handleMore(item)}
+                onLess={() => handleLess(item)}
+              />
+            }
+          />
+        )}
+        keyExtractor={(item) => item[1].product.id.toString()}
+      />
+      <ContinueButton
         disabled={!Object.entries(selectedProducts).length}
         onPress={handleContinue}
-      >
-        Continue
-      </Button>
+      />
     </View>
   )
 }
@@ -147,7 +156,6 @@ const ProductsScreen: React.FC<
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     padding: 20,
     gap: 20,
   },

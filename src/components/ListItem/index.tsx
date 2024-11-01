@@ -1,5 +1,5 @@
-import { EllipsisVertical, Minus, Plus } from '@tamagui/lucide-icons'
-import { Button, Separator, ListItem as TamaguiListItem, XGroup } from 'tamagui'
+import { EllipsisVertical } from '@tamagui/lucide-icons'
+import { ListItem as TamaguiListItem } from 'tamagui'
 
 interface CardProps<T> {
   item: T
@@ -19,8 +19,6 @@ const ListItem = <T extends object>({
   label,
   subLabel,
   onSelect,
-  onMore,
-  onLess,
   isFinalized,
   hasOptions,
   hasSeparatedItems,
@@ -36,29 +34,7 @@ const ListItem = <T extends object>({
       title={label}
       subTitle={subLabel}
       iconAfter={hasOptions ? EllipsisVertical : iconAfter}
-    >
-      {onMore && onLess && (
-        <XGroup>
-          <XGroup.Item>
-            <Button
-              icon={Plus}
-              width="10"
-              size="$2"
-              onPress={() => onMore(item)}
-            />
-          </XGroup.Item>
-          <Separator vertical />
-          <XGroup.Item>
-            <Button
-              icon={Minus}
-              width="10"
-              size="$2"
-              onPress={() => onLess(item)}
-            />
-          </XGroup.Item>
-        </XGroup>
-      )}
-    </TamaguiListItem>
+    />
   )
 }
 

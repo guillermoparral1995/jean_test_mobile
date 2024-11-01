@@ -25,7 +25,7 @@ const SearchBox = <T extends object>({
 }: SearchBoxProps<T>) => {
   return (
     <>
-      <XStack gap={5} marginHorizontal={20}>
+      <XStack alignSelf="center" paddingHorizontal={20} gap={5}>
         <Input
           onChangeText={onChangeQuery}
           value={query}
