@@ -4,11 +4,13 @@ import { Button } from 'tamagui'
 interface ContinueButtonProps {
   disabled?: boolean
   onPress: () => void
+  label?: string
 }
 
 const ContinueButton: React.FC<ContinueButtonProps> = ({
   disabled,
   onPress,
+  label,
 }) => {
   return (
     <Button
@@ -17,7 +19,7 @@ const ContinueButton: React.FC<ContinueButtonProps> = ({
       onPress={onPress}
       color={disabled ? 'gray' : undefined}
     >
-      Continue
+      {label ?? 'Continue'}
     </Button>
   )
 }
