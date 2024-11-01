@@ -11,7 +11,12 @@ const ContinueButton: React.FC<ContinueButtonProps> = ({
   onPress,
 }) => {
   return (
-    <Button backgroundColor="white" disabled={disabled} onPress={onPress}>
+    <Button
+      backgroundColor={disabled ? 'lightgray' : 'white'}
+      disabled={disabled}
+      onPress={onPress}
+      color={disabled ? 'gray' : undefined}
+    >
       Continue
     </Button>
   )

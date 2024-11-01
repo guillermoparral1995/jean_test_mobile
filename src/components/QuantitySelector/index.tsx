@@ -14,11 +14,11 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
   return (
     <XGroup>
       <XGroup.Item>
-        <Button icon={Minus} width="10" size="$2" onPress={onLess} />
+        <Button icon={Minus} width={10} onPress={onLess} />
       </XGroup.Item>
       <Separator vertical />
       <XGroup.Item>
-        <Button icon={Plus} width="10" size="$2" onPress={onMore} />
+        <Button icon={Plus} width={10} onPress={onMore} />
       </XGroup.Item>
     </XGroup>
   )

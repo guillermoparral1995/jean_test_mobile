@@ -35,7 +35,7 @@ const RadioGroupWithDate = <T extends string>({
           {Object.entries(options).map((entry) => {
             const [value, label] = entry
             return (
-              <XStack key={`date_${value}`}>
+              <XStack key={`date_${value}`} alignItems="center" gap={5}>
                 <RadioGroup.Item value={value} id={value}>
                   <RadioGroup.Indicator />
                 </RadioGroup.Item>

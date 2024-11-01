@@ -9,7 +9,7 @@ import {
 export const getFullName = (customer: Components.Schemas.Customer) =>
   `${customer.first_name} ${customer.last_name}`
 
-export const getFormattedDate = (date: string) =>
+export const getFormattedDate = (date: string | Date) =>
   new Date(date).toLocaleDateString()
 
 export const mapInvoiceToState = (invoice: Invoice): InvoiceState => {
