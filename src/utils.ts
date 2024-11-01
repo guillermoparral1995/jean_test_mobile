@@ -6,6 +6,20 @@ import {
   SelectedProducts,
 } from './types'
 
+export const debounce = (fn: () => void, timeout: number) => {
+  let timeoutId: NodeJS.Timeout
+  return () => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(fn, timeout)
+  }
+}
+
+export const getFullName = (customer: Components.Schemas.Customer) =>
+  `${customer.first_name} ${customer.last_name}`
+
+export const getFormattedDate = (date: string) =>
+  new Date(date).toLocaleDateString()
+
 export const mapInvoiceToState = (invoice: Invoice): InvoiceState => {
   const products: SelectedProducts = invoice.invoice_lines.reduce(
     (obj: SelectedProducts, invoiceLine: Components.Schemas.InvoiceLine) => {

@@ -121,7 +121,7 @@ const ProductsScreen: React.FC<
             <ListItem
               item={item}
               label={item[1].product.label}
-              subLabel={item[1].qty}
+              subLabel={item[1].qty.toString()}
               onMore={handleMore}
               onLess={handleLess}
             />

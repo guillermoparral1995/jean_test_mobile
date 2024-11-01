@@ -32,28 +32,45 @@ const tamaguiConfig = createTamagui(defaultConfig)
 
 const App = () => {
   return (
-    <TamaguiProvider config={tamaguiConfig}>
-      <ApiProvider
-        url={String(Config.API_URL)}
-        token={String(Config.API_TOKEN)}
-      >
+    <ApiProvider url={String(Config.API_URL)} token={String(Config.API_TOKEN)}>
+      <TamaguiProvider config={tamaguiConfig}>
         <PortalProvider shouldAddRootHost>
           <ReduxProvider store={store}>
             <NavigationContainer>
               <Stack.Navigator>
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Customer" component={CustomerScreen} />
-                <Stack.Screen name="Products" component={ProductsScreen} />
-                <Stack.Screen name="Dates" component={DateScreen} />
-                <Stack.Screen name="Confirm" component={ConfirmScreen} />
+                <Stack.Screen
+                  name="Home"
+                  component={HomeScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Customer"
+                  component={CustomerScreen}
+                  options={{ headerTitle: 'Step 1 of 4' }}
+                />
+                <Stack.Screen
+                  name="Products"
+                  component={ProductsScreen}
+                  options={{ headerTitle: 'Step 2 of 4' }}
+                />
+                <Stack.Screen
+                  name="Dates"
+                  component={DateScreen}
+                  options={{ headerTitle: 'Step 3 of 4' }}
+                />
+                <Stack.Screen
+                  name="Confirm"
+                  component={ConfirmScreen}
+                  options={{ headerTitle: 'Step 4 of 4' }}
+                />
                 <Stack.Screen name="Success" component={SuccessScreen} />
                 <Stack.Screen name="Error" component={ErrorScreen} />
               </Stack.Navigator>
             </NavigationContainer>
           </ReduxProvider>
         </PortalProvider>
-      </ApiProvider>
-    </TamaguiProvider>
+      </TamaguiProvider>
+    </ApiProvider>
   )
 }
 

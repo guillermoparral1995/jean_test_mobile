@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
-import { FlatList, StyleSheet } from 'react-native'
+import { FlatList } from 'react-native'
 import { useEffect } from 'react'
-import { View, Button, Sheet, YStack } from 'tamagui'
+import { View, Button, Sheet, YStack, H1, Separator } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -10,6 +10,8 @@ import ListItem from '../../components/ListItem'
 import { useDispatch } from 'react-redux'
 import { setInvoice } from '../../store/invoiceSlice'
 import { Invoice, InvoiceUpdatePayload } from '../../types'
+import { Plus } from '@tamagui/lucide-icons'
+import { getFormattedDate, getFullName } from '../../utils'
 
 const HomeScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Home'>
@@ -82,17 +84,28 @@ const HomeScreen: React.FC<
 
   return (
     <>
-      <View style={styles.container}>
-        <Button onPress={handleCreateNewInvoice}>Create new invoice</Button>
+      <View padding={20} gap={20}>
+        <H1>My invoices</H1>
+        <Button
+          borderColor="lightgreen"
+          backgroundColor="white"
+          iconAfter={<Plus color={'lightgreen'} />}
+          onPress={handleCreateNewInvoice}
+        >
+          Create new invoice
+        </Button>
         <FlatList
           data={invoices}
           renderItem={({ item }) => {
             return (
               <ListItem
                 item={item}
-                label={item.customer!.first_name}
+                label={getFullName(item.customer!)}
+                subLabel={getFormattedDate(item.date!)}
                 onSelect={handleSelect}
                 isFinalized={item.finalized}
+                hasOptions
+                hasSeparatedItems
               />
             )
           }}
@@ -115,12 +128,13 @@ const HomeScreen: React.FC<
             {!selectedInvoice?.finalized && (
               <>
                 <Button onPress={handleEditInvoice}>Edit invoice</Button>
+                <Separator />
                 <Button onPress={handleFinalizeInvoice}>
                   Finalize invoice
                 </Button>
+                <Separator />
               </>
             )}
-
             <Button onPress={handleDeleteInvoice}>Delete invoice</Button>
           </YStack>
         </Sheet.Frame>
@@ -128,14 +142,5 @@ const HomeScreen: React.FC<
     </>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 20,
-  },
-})
 
 export default HomeScreen

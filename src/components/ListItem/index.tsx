@@ -1,13 +1,17 @@
-import { Button, ListItem as TamaguiListItem, Text, XGroup } from 'tamagui'
+import { EllipsisVertical, Minus, Plus } from '@tamagui/lucide-icons'
+import { Button, Separator, ListItem as TamaguiListItem, XGroup } from 'tamagui'
 
 interface CardProps<T> {
   item: T
   label: string
-  subLabel?: string | number
+  subLabel?: string
   onSelect?: (prop: T) => void
   onMore?: (prop: T) => void
   onLess?: (prop: T) => void
   isFinalized?: boolean
+  hasOptions?: boolean
+  hasSeparatedItems?: boolean
+  iconAfter?: any
 }
 
 const ListItem = <T extends object>({
@@ -18,35 +22,41 @@ const ListItem = <T extends object>({
   onMore,
   onLess,
   isFinalized,
+  hasOptions,
+  hasSeparatedItems,
+  iconAfter,
 }: CardProps<T>) => {
   return (
     <TamaguiListItem
+      borderRadius={hasSeparatedItems ? 10 : undefined}
+      margin={hasSeparatedItems ? 10 : undefined}
       padding={10}
       onPress={onSelect ? () => onSelect(item) : null}
       backgroundColor={isFinalized ? 'lightgreen' : undefined}
+      title={label}
+      subTitle={subLabel}
+      iconAfter={hasOptions ? EllipsisVertical : iconAfter}
+      size={20}
     >
-      <Text>{label}</Text>
-      {(subLabel || onMore || onLess) && (
+      {onMore && onLess && (
         <XGroup>
-          {subLabel ? (
-            <XGroup.Item>
-              <Text>{subLabel}</Text>
-            </XGroup.Item>
-          ) : null}
-          {onMore ? (
-            <XGroup.Item>
-              <Button width="10" size="$2" onPress={() => onMore(item)}>
-                +
-              </Button>
-            </XGroup.Item>
-          ) : null}
-          {onLess ? (
-            <XGroup.Item>
-              <Button width="10" size="$2" onPress={() => onLess(item)}>
-                -
-              </Button>
-            </XGroup.Item>
-          ) : null}
+          <XGroup.Item>
+            <Button
+              icon={Plus}
+              width="10"
+              size="$2"
+              onPress={() => onMore(item)}
+            />
+          </XGroup.Item>
+          <Separator vertical />
+          <XGroup.Item>
+            <Button
+              icon={Minus}
+              width="10"
+              size="$2"
+              onPress={() => onLess(item)}
+            />
+          </XGroup.Item>
         </XGroup>
       )}
     </TamaguiListItem>
