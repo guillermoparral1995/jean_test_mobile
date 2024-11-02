@@ -5,13 +5,13 @@ import { View, Button, Sheet, YStack, H1, Separator } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
-import { type RootStackParamList } from '../../App'
 import ListItem from '../../components/ListItem'
 import { useDispatch } from 'react-redux'
 import { setInvoice } from '../../store/invoiceSlice'
 import { Invoice, InvoiceUpdatePayload } from '../../types'
 import { Plus } from '@tamagui/lucide-icons'
 import { getFormattedDate, getFullName } from '../../utils'
+import { type RootStackParamList } from '../../Router'
 
 const HomeScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Home'>

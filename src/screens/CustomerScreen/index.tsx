@@ -1,10 +1,9 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
 import { StyleSheet } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Text, View, debounce } from 'tamagui'
+import { Text, View, YStack, debounce } from 'tamagui'
 
 import { useApi } from '../../api'
-import { type RootStackParamList } from '../../App'
 import { type Components } from '../../api/generated/client'
 import ListItem from '../../components/ListItem'
 import { setInvoiceCustomer } from '../../store/invoiceSlice'
@@ -14,6 +13,7 @@ import { getFullName } from '../../utils'
 import { X as IconX } from '@tamagui/lucide-icons'
 import SearchBox from '../../components/SearchBox'
 import ContinueButton from '../../components/ContinueButton'
+import { type RootStackParamList } from '../../Router'
 
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
@@ -76,25 +76,27 @@ const CustomerScreen: React.FC<
 
   return (
     <View style={styles.container}>
-      <Text>Who are you creating this invoice for?</Text>
-      <SearchBox
-        onChangeQuery={handleChange}
-        query={customerSearch}
-        onCancel={handleCancel}
-        options={customers}
-        renderLabel={getFullName}
-        onSelect={handleSelect}
-        keyExtractor={(customer) => customer.id.toString()}
-      />
-      {selectedCustomer && (
-        <ListItem
-          item={selectedCustomer}
-          label={getFullName(selectedCustomer)}
-          onSelect={handleRemoveSelection}
-          hasSeparatedItems
-          iconAfter={IconX}
+      <YStack gap={10}>
+        <Text>Who are you creating this invoice for?</Text>
+        <SearchBox
+          onChangeQuery={handleChange}
+          query={customerSearch}
+          onCancel={handleCancel}
+          options={customers}
+          renderLabel={getFullName}
+          onSelect={handleSelect}
+          keyExtractor={(customer) => customer.id.toString()}
         />
-      )}
+        {selectedCustomer ? (
+          <ListItem
+            item={selectedCustomer}
+            label={getFullName(selectedCustomer)}
+            onSelect={handleRemoveSelection}
+            hasSeparatedItems
+            iconAfter={IconX}
+          />
+        ) : undefined}
+      </YStack>
       <ContinueButton disabled={!selectedCustomer} onPress={handleContinue} />
     </View>
   )
@@ -105,6 +107,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     gap: 20,
+    justifyContent: 'space-between',
   },
   searchResults: {
     borderRadius: 10,

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../App'
-import { debounce, Text, View } from 'tamagui'
+import { debounce, Text, View, YStack } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,6 +12,7 @@ import { currentInvoiceProducts } from '../../store/selectors'
 import SearchBox from '../../components/SearchBox'
 import QuantitySelector from '../../components/QuantitySelector'
 import ContinueButton from '../../components/ContinueButton'
+import { type RootStackParamList } from '../../Router'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
@@ -114,18 +114,20 @@ const ProductsScreen: React.FC<
 
   return (
     <View style={styles.container}>
-      <Text>What should be included in the invoice?</Text>
-      <SearchBox
-        onChangeQuery={handleChange}
-        onCancel={handleCancel}
-        query={productSearch}
-        options={products}
-        onSelect={handleSelect}
-        renderLabel={(item) => item.label}
-        keyExtractor={(item) => item.id.toString()}
-      />
-
+      <YStack gap={10}>
+        <Text>What should be included in the invoice?</Text>
+        <SearchBox
+          onChangeQuery={handleChange}
+          onCancel={handleCancel}
+          query={productSearch}
+          options={products}
+          onSelect={handleSelect}
+          renderLabel={(item) => item.label}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      </YStack>
       <FlatList<SelectedProduct>
+        style={styles.selectedItems}
         data={Object.entries(selectedProducts)}
         renderItem={({ item }) => (
           <ListItem
@@ -158,6 +160,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     gap: 20,
+    justifyContent: 'space-between',
+  },
+  selectedItems: {
+    paddingBottom: 40,
   },
 })
 

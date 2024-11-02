@@ -1,5 +1,4 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../App'
 import { Text, View, XStack, YStack } from 'tamagui'
 import { useEffect, useRef, useState } from 'react'
 import RadioGroupWithDate from '../../components/RadioGroupWithDate'
@@ -10,6 +9,7 @@ import ContinueButton from '../../components/ContinueButton'
 import ListItem from '../../components/ListItem'
 import { getFormattedDate } from '../../utils'
 import { AlertTriangle } from '@tamagui/lucide-icons'
+import { type RootStackParamList } from '../../Router'
 
 type DateOption = 'date_today' | 'date_select'
 type DeadlineOption = 'deadline_none' | 'deadline_select'

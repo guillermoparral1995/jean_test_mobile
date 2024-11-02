@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../App'
 import { Button, Text, View } from 'tamagui'
+import { type RootStackParamList } from '../../Router'
 
 const ErrorScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Error'>

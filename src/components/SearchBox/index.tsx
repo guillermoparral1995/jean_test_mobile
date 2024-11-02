@@ -47,6 +47,11 @@ const SearchBox = <T extends object>({
         )}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={Separator}
+        ListEmptyComponent={
+          query !== '' ? (
+            <ListItem item={{}} label={'No results for this query :('} />
+          ) : null
+        }
       />
     </>
   )

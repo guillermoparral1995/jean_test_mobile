@@ -1,8 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../App'
 import { Button, Text, View } from 'tamagui'
 import { useDispatch } from 'react-redux'
 import { clearInvoice } from '../../store/invoiceSlice'
+import { type RootStackParamList } from '../../Router'
 
 const SuccessScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Success'>
@@ -11,6 +11,7 @@ const SuccessScreen: React.FC<
   const handleGoHome = () => {
     dispatch(clearInvoice())
     navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
+    navigation.navigate('Home')
   }
   return (
     <View>

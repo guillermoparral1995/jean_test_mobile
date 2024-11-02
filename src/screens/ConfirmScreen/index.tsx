@@ -1,9 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../../App'
 import { useSelector } from 'react-redux'
 import { currentInvoice } from '../../store/selectors'
 import { useApi } from '../../api'
-import { H3, H4, ScrollView, Separator, Text, View, YStack } from 'tamagui'
+import { H3, ScrollView, Separator, Text, View, YStack } from 'tamagui'
 import {
   getFormattedDate,
   getFullName,
@@ -13,6 +12,7 @@ import ContinueButton from '../../components/ContinueButton'
 import { FlatList, StyleSheet } from 'react-native'
 import { SelectedProduct } from '../../types'
 import ListItem from '../../components/ListItem'
+import { type RootStackParamList } from '../../Router'
 
 const ConfirmScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Confirm'>
@@ -33,13 +33,13 @@ const ConfirmScreen: React.FC<
   }
   return (
     <View style={styles.container}>
+      <YStack>
+        <H3>Almost there!</H3>
+        <Text>Make sure everything's right</Text>
+      </YStack>
+
       <ScrollView>
         <YStack gap={10}>
-          <YStack>
-            <H3>Almost there!</H3>
-            <Text>Make sure everything's right</Text>
-          </YStack>
-
           <YStack gap={10}>
             <Text>Customer</Text>
             <View borderRadius={10} padding={10} backgroundColor="white">
@@ -49,6 +49,8 @@ const ConfirmScreen: React.FC<
           <YStack gap={10}>
             <Text>Products</Text>
             <FlatList<SelectedProduct>
+              scrollEnabled={false}
+              bounces={false}
               style={styles.searchResults}
               data={Object.entries(invoiceToCreate.products)}
               renderItem={({ item }) => (
@@ -80,7 +82,6 @@ const ConfirmScreen: React.FC<
           </YStack>
         </YStack>
       </ScrollView>
-
       <ContinueButton onPress={handleCreate} label={'Create'} />
     </View>
   )
