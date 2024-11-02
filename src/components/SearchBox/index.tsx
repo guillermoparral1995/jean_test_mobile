@@ -1,12 +1,13 @@
 import { Delete } from '@tamagui/lucide-icons'
 import React from 'react'
 import { FlatList, StyleSheet } from 'react-native'
-import { Button, Input, Separator, XStack } from 'tamagui'
+import { Button, Input, Separator, Spinner, XStack } from 'tamagui'
 import ListItem from '../ListItem'
 
 interface SearchBoxProps<T> {
   onChangeQuery: (e: string) => void
   query: string
+  loading: boolean
   onCancel: () => void
   options: T[]
   renderLabel: (item: T) => string
@@ -18,6 +19,7 @@ const SearchBox = <T extends object>({
   onChangeQuery,
   onCancel,
   query,
+  loading,
   options,
   renderLabel,
   onSelect,
@@ -47,8 +49,10 @@ const SearchBox = <T extends object>({
         )}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={Separator}
-        ListEmptyComponent={
-          query !== '' ? (
+        ListFooterComponent={
+          loading ? (
+            <Spinner />
+          ) : query !== '' && !options.length ? (
             <ListItem item={{}} label={'No results for this query :('} />
           ) : null
         }

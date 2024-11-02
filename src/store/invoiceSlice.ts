@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
+
 import { Components } from '../api/generated/client'
 import { Invoice, InvoiceState, SelectedProducts } from '../types'
 import { mapInvoiceToState } from '../utils'

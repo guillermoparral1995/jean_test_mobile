@@ -15,9 +15,15 @@ const CancelButton = <T extends keyof RootStackParamList>({
 }: CancelButtonProps<T>) => {
   const dispatch = useDispatch()
   const handlePress = () => {
+    console.log('Dispatching clearInvoice...')
     dispatch(clearInvoice())
-    navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
-    navigation.navigate('Home')
+    console.log('Resetting navigation stack to Home...')
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+      key: Date.now().toString(),
+    })
+    console.log('Navigation state after reset:', navigation.getState())
   }
   return <Button backgroundColor={'white'} icon={IconX} onPress={handlePress} />
 }

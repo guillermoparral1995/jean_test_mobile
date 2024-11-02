@@ -1,14 +1,15 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Text, View, XStack, YStack } from 'tamagui'
-import { useEffect, useRef, useState } from 'react'
-import RadioGroupWithDate from '../../components/RadioGroupWithDate'
-import { useDispatch } from 'react-redux'
-import { setInvoiceDate, setInvoiceDeadline } from '../../store/invoiceSlice'
+import { AlertTriangle } from '@tamagui/lucide-icons'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { StyleSheet } from 'react-native'
+import { useDispatch } from 'react-redux'
+import { Text, View, XStack, YStack } from 'tamagui'
+
+import RadioGroupWithDate from '../../components/RadioGroupWithDate'
 import ContinueButton from '../../components/ContinueButton'
 import ListItem from '../../components/ListItem'
+import { setInvoiceDate, setInvoiceDeadline } from '../../store/invoiceSlice'
 import { getFormattedDate } from '../../utils'
-import { AlertTriangle } from '@tamagui/lucide-icons'
 import { type RootStackParamList } from '../../Router'
 
 type DateOption = 'date_today' | 'date_select'
@@ -38,36 +39,39 @@ const DateScreen: React.FC<
     setIsDeadlinePickerOpen(deadlineOption === 'deadline_select')
   }, [deadlineOption])
 
-  const handleDateOptionChange = (value: string) => {
+  const handleDateOptionChange = useCallback((value: string) => {
     setDateOption(value as DateOption)
-  }
+  }, [])
 
-  const handleDeadlineOptionChange = (value: string) => {
+  const handleDeadlineOptionChange = useCallback((value: string) => {
     setDeadlineOption(value as DeadlineOption)
-  }
+  }, [])
 
-  const handleDatePickerConfirm = (selectedDate: Date) => {
+  const handleDatePickerConfirm = useCallback((selectedDate: Date) => {
     setIsDatePickerOpen(false)
     setDate(selectedDate)
-  }
+  }, [])
 
-  const handleDeadlinePickerConfirm = (selectedDate: Date) => {
-    setIsDeadlinePickerOpen(false)
-    setDeadline(selectedDate)
-    setValidationError(selectedDate <= date)
-  }
+  const handleDeadlinePickerConfirm = useCallback(
+    (selectedDate: Date) => {
+      setIsDeadlinePickerOpen(false)
+      setDeadline(selectedDate)
+      setValidationError(selectedDate <= date)
+    },
+    [date],
+  )
 
-  const handleDatePickerCancel = () => {
+  const handleDatePickerCancel = useCallback(() => {
     setIsDatePickerOpen(false)
     setDateOption('date_today')
-  }
+  }, [])
 
-  const handleDeadlinePickerCancel = () => {
+  const handleDeadlinePickerCancel = useCallback(() => {
     setIsDeadlinePickerOpen(false)
     setDeadlineOption('deadline_none')
-  }
+  }, [])
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     const formattedDate = date.toISOString().split('T')[0]
     dispatch(setInvoiceDate(formattedDate))
     if (hasDeadlineBeenSet && deadlineOption !== 'deadline_none') {
@@ -75,7 +79,7 @@ const DateScreen: React.FC<
       dispatch(setInvoiceDeadline(formattedDeadline))
     }
     navigation.navigate('Confirm')
-  }
+  }, [date, deadline, deadlineOption, dispatch, navigation])
 
   return (
     <View style={styles.container}>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { debounce, Text, View, YStack } from 'tamagui'
+import { Text, View, YStack, debounce } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -23,12 +23,14 @@ const ProductsScreen: React.FC<
   const [selectedProducts, setSelectedProducts] = useState<SelectedProducts>(
     currentSelectedProducts,
   )
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const apiClient = useApi()
   const dispatch = useDispatch()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchProducts = useCallback(
     debounce(async (query: string) => {
+      setIsLoading(true)
       try {
         const response = await apiClient.getSearchProducts({
           query,
@@ -36,6 +38,8 @@ const ProductsScreen: React.FC<
         setProducts(response.data.products)
       } catch (e) {
         console.error(e)
+      } finally {
+        setIsLoading(false)
       }
     }, 500),
     [apiClient],
@@ -49,68 +53,77 @@ const ProductsScreen: React.FC<
     }
   }, [fetchProducts, productSearch])
 
-  const handleChange = async (e: string) => {
+  const handleChange = useCallback(async (e: string) => {
     setProductSearch(e)
-  }
+  }, [])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setProductSearch('')
-  }
+  }, [])
 
-  const handleSelect = (product: Components.Schemas.Product) => {
-    if (!selectedProducts[product.label]) {
-      setSelectedProducts({
-        ...selectedProducts,
-        [product.label]: {
-          product,
-          qty: 1,
-        },
-      })
-    } else {
-      setSelectedProducts({
-        ...selectedProducts,
-        [product.label]: {
-          product,
-          qty: selectedProducts[product.label].qty + 1,
-        },
-      })
-    }
-    setProductSearch('')
-  }
+  const handleSelect = useCallback(
+    (product: Components.Schemas.Product) => {
+      if (!selectedProducts[product.label]) {
+        setSelectedProducts({
+          ...selectedProducts,
+          [product.label]: {
+            product,
+            qty: 1,
+          },
+        })
+      } else {
+        setSelectedProducts({
+          ...selectedProducts,
+          [product.label]: {
+            product,
+            qty: selectedProducts[product.label].qty + 1,
+          },
+        })
+      }
+      setProductSearch('')
+    },
+    [selectedProducts],
+  )
 
-  const handleMore = (entry: SelectedProduct) => {
-    const [label, { product, qty }] = entry
-    setSelectedProducts({
-      ...selectedProducts,
-      [label]: {
-        product,
-        qty: qty + 1,
-      },
-    })
-  }
-
-  const handleLess = (entry: SelectedProduct) => {
-    const [label, { product, qty }] = entry
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { [label]: _omit, ...rest } = selectedProducts
-    if (qty === 1) {
-      setSelectedProducts(rest)
-    } else {
+  const handleMore = useCallback(
+    (entry: SelectedProduct) => {
+      const [label, { product, qty }] = entry
       setSelectedProducts({
         ...selectedProducts,
         [label]: {
           product,
-          qty: qty - 1,
+          qty: qty + 1,
         },
       })
-    }
-  }
+    },
+    [selectedProducts],
+  )
 
-  const handleContinue = () => {
+  const handleLess = useCallback(
+    (entry: SelectedProduct) => {
+      const [label, { product, qty }] = entry
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [label]: _omit, ...rest } = selectedProducts
+      if (qty === 1) {
+        setSelectedProducts(rest)
+      } else {
+        setSelectedProducts({
+          ...selectedProducts,
+          [label]: {
+            product,
+            qty: qty - 1,
+          },
+        })
+      }
+    },
+    [selectedProducts],
+  )
+
+  const handleContinue = useCallback(() => {
     dispatch(setInvoiceProducts(selectedProducts))
     navigation.navigate('Dates')
-  }
+  }, [dispatch, navigation, selectedProducts])
 
   return (
     <View style={styles.container}>
@@ -124,6 +137,7 @@ const ProductsScreen: React.FC<
           onSelect={handleSelect}
           renderLabel={(item) => item.label}
           keyExtractor={(item) => item.id.toString()}
+          loading={isLoading}
         />
       </YStack>
       <FlatList<SelectedProduct>

@@ -1,8 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native'
 import {
-  createNativeStackNavigator,
   NativeStackScreenProps,
+  createNativeStackNavigator,
 } from '@react-navigation/native-stack'
+
 import HomeScreen from './screens/HomeScreen'
 import CustomerScreen from './screens/CustomerScreen'
 import ProductsScreen from './screens/ProductsScreen'
@@ -75,8 +76,20 @@ const Router = () => {
             headerRight: () => <CancelButton navigation={navigation} />,
           })}
         />
-        <Stack.Screen name="Success" component={SuccessScreen} />
-        <Stack.Screen name="Error" component={ErrorScreen} />
+        <Stack.Screen
+          name="Success"
+          component={SuccessScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="Error"
+          component={ErrorScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   )

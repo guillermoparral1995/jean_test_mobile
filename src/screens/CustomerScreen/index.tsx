@@ -24,12 +24,14 @@ const CustomerScreen: React.FC<
   >(currentCustomer)
   const [customerSearch, setCustomerSearch] = useState<string>('')
   const [customers, setCustomers] = useState<Components.Schemas.Customer[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const apiClient = useApi()
   const dispatch = useDispatch()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchCustomers = useCallback(
     debounce(async (query: string) => {
+      setIsLoading(true)
       try {
         const response = await apiClient.getSearchCustomers({
           query,
@@ -37,8 +39,10 @@ const CustomerScreen: React.FC<
         setCustomers(response.data.customers)
       } catch (e) {
         console.error(e)
+      } finally {
+        setIsLoading(false)
       }
-    }, 500),
+    }, 200),
     [apiClient],
   )
 
@@ -50,29 +54,29 @@ const CustomerScreen: React.FC<
     }
   }, [customerSearch, fetchCustomers])
 
-  const handleChange = async (e: string) => {
+  const handleChange = useCallback(async (e: string) => {
     setCustomerSearch(e)
-  }
+  }, [])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setCustomerSearch('')
-  }
+  }, [])
 
-  const handleSelect = (customer: Components.Schemas.Customer) => {
+  const handleSelect = useCallback((customer: Components.Schemas.Customer) => {
     setSelectedCustomer(customer)
     setCustomerSearch('')
-  }
+  }, [])
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     if (selectedCustomer) {
       dispatch(setInvoiceCustomer(selectedCustomer))
       navigation.navigate('Products')
     }
-  }
+  }, [dispatch, navigation, selectedCustomer])
 
-  const handleRemoveSelection = () => {
+  const handleRemoveSelection = useCallback(() => {
     setSelectedCustomer(undefined)
-  }
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -86,6 +90,7 @@ const CustomerScreen: React.FC<
           renderLabel={getFullName}
           onSelect={handleSelect}
           keyExtractor={(customer) => customer.id.toString()}
+          loading={isLoading}
         />
         {selectedCustomer ? (
           <ListItem

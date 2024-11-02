@@ -1,17 +1,18 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { FlatList, StyleSheet } from 'react-native'
 import { useSelector } from 'react-redux'
-import { currentInvoice } from '../../store/selectors'
-import { useApi } from '../../api'
 import { H3, ScrollView, Separator, Text, View, YStack } from 'tamagui'
+
+import { useApi } from '../../api'
+import ContinueButton from '../../components/ContinueButton'
+import ListItem from '../../components/ListItem'
 import {
   getFormattedDate,
   getFullName,
   mapStateToCreatePayload,
 } from '../../utils'
-import ContinueButton from '../../components/ContinueButton'
-import { FlatList, StyleSheet } from 'react-native'
+import { currentInvoice } from '../../store/selectors'
 import { SelectedProduct } from '../../types'
-import ListItem from '../../components/ListItem'
 import { type RootStackParamList } from '../../Router'
 
 const ConfirmScreen: React.FC<
@@ -31,6 +32,7 @@ const ConfirmScreen: React.FC<
       navigation.navigate('Error')
     }
   }
+
   return (
     <View style={styles.container}>
       <YStack>
