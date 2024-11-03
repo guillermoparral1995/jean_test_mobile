@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux'
 import {
   Button,
   H1,
+  H3,
   Separator,
   Sheet,
   Spinner,
@@ -98,6 +99,38 @@ const HomeScreen: React.FC<
     },
   })
 
+  const { mutate: payInvoice } = useMutation({
+    mutationFn: async (invoiceToPay: Invoice) => {
+      const payload: InvoiceUpdatePayload = {
+        ...invoiceToPay,
+        customer_id: invoiceToPay.customer_id!,
+        paid: true,
+      }
+      await apiClient.putInvoice(invoiceToPay.id, {
+        invoice: payload,
+      })
+    },
+    onSuccess: () => {
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Paid successfully',
+      })
+    },
+    onError: () => {
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'There was an error',
+        text2: 'Please try again',
+      })
+    },
+    onSettled: () => {
+      setIsSheetOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    },
+  })
+
   const handleCreateNewInvoice = useCallback(
     () => navigation.navigate('Customer'),
     [navigation],
@@ -129,6 +162,12 @@ const HomeScreen: React.FC<
     }
   }, [finalizeInvoice, selectedInvoice])
 
+  const handlePayInvoice = useCallback(async () => {
+    if (selectedInvoice) {
+      payInvoice(selectedInvoice)
+    }
+  }, [payInvoice, selectedInvoice])
+
   const handleDeleteInvoice = useCallback(async () => {
     if (selectedInvoice) {
       deleteInvoice(selectedInvoice)
@@ -148,30 +187,38 @@ const HomeScreen: React.FC<
           Create new invoice
         </Button>
         <FlatList
-          data={invoices}
+          data={invoices ?? []}
           renderItem={({ item }) => {
             return (
               <ListItem
                 item={item}
                 label={getFullName(item.customer!)}
                 subLabel={getFormattedDate(item.date!)}
-                onSelect={handleSelect}
+                onSelect={!item.paid ? handleSelect : undefined}
+                isPaid={item.paid}
                 isFinalized={item.finalized}
                 hasSeparatedItems
                 iconAfter={
                   <XStack gap={10} alignItems="center">
-                    <Text>{`$${item.total}`}</Text>
-                    {!item.finalized && <EllipsisVertical />}
+                    <YStack gap={5}>
+                      <Text>{`$${item.total}`}</Text>
+                      {item.paid || item.finalized ? (
+                        <Text color={item.paid ? 'green' : 'gray'}>
+                          {item.paid ? 'Paid' : 'Finalized'}
+                        </Text>
+                      ) : null}
+                    </YStack>
+                    {!item.paid && <EllipsisVertical />}
                   </XStack>
                 }
               />
             )
           }}
+          ListEmptyComponent={<H3>{'Nothing here yet! :)'}</H3>}
           ListFooterComponent={isLoading ? <Spinner /> : null}
         />
       </YStack>
-
-      {!selectedInvoice?.finalized && (
+      {!selectedInvoice?.paid ? (
         <Sheet
           modal
           open={isSheetOpen}
@@ -186,15 +233,23 @@ const HomeScreen: React.FC<
           <Sheet.Handle />
           <Sheet.Frame>
             <YStack>
-              <Button onPress={handleEditInvoice}>Edit invoice</Button>
-              <Separator />
-              <Button onPress={handleFinalizeInvoice}>Finalize invoice</Button>
-              <Separator />
-              <Button onPress={handleDeleteInvoice}>Delete invoice</Button>
+              {selectedInvoice?.finalized ? (
+                <Button onPress={handlePayInvoice}>Pay invoice</Button>
+              ) : (
+                <>
+                  <Button onPress={handleEditInvoice}>Edit invoice</Button>
+                  <Separator />
+                  <Button onPress={handleFinalizeInvoice}>
+                    Finalize invoice
+                  </Button>
+                  <Separator />
+                  <Button onPress={handleDeleteInvoice}>Delete invoice</Button>
+                </>
+              )}
             </YStack>
           </Sheet.Frame>
         </Sheet>
-      )}
+      ) : null}
     </View>
   )
 }

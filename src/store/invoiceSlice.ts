@@ -9,7 +9,7 @@ const initialState: InvoiceState = {
   id: null,
   date: null,
   deadline: null,
-  paid: true,
+  paid: false,
   finalized: false,
   products: {},
   isEdit: false,

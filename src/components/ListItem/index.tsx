@@ -10,6 +10,7 @@ interface CardProps<T> {
   onSelect?: (prop: T) => void
   onMore?: (prop: T) => void
   onLess?: (prop: T) => void
+  isPaid?: boolean
   isFinalized?: boolean
   hasSeparatedItems?: boolean
   iconAfter?: React.ReactElement | React.NamedExoticComponent<IconProps>
@@ -20,6 +21,7 @@ const ListItem = <T extends object>({
   label,
   subLabel,
   onSelect,
+  isPaid,
   isFinalized,
   hasSeparatedItems,
   iconAfter,
@@ -30,7 +32,9 @@ const ListItem = <T extends object>({
       borderRadius={hasSeparatedItems ? 10 : undefined}
       marginVertical={hasSeparatedItems ? 10 : undefined}
       onPress={onSelect ? () => onSelect(item) : null}
-      backgroundColor={isFinalized ? 'lightgreen' : undefined}
+      backgroundColor={
+        isPaid ? 'lightgreen' : isFinalized ? 'lightgray' : undefined
+      }
       title={label}
       subTitle={subLabel}
       iconAfter={iconAfter}
