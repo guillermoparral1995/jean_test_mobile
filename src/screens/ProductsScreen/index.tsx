@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Text, View, YStack } from 'tamagui'
+import { Text, View, XStack, YStack } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +14,7 @@ import QuantitySelector from '../../components/QuantitySelector'
 import ContinueButton from '../../components/ContinueButton'
 import { type RootStackParamList } from '../../Router'
 import { useInfiniteQuery } from '@tanstack/react-query'
+import { getFormattedAmount } from '../../utils'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
@@ -167,10 +168,13 @@ const ProductsScreen: React.FC<
             onLess={handleLess}
             hasSeparatedItems
             iconAfter={
-              <QuantitySelector
-                onMore={() => handleMore(item)}
-                onLess={() => handleLess(item)}
-              />
+              <XStack gap={10} alignItems="center">
+                <Text>{getFormattedAmount(item)}</Text>
+                <QuantitySelector
+                  onMore={() => handleMore(item)}
+                  onLess={() => handleLess(item)}
+                />
+              </XStack>
             }
           />
         )}

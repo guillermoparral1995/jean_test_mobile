@@ -19,7 +19,7 @@ export type RootStackParamList = {
   Products: undefined
   Dates: undefined
   Confirm: undefined
-  Success: undefined
+  Success: { isEdit: boolean }
   Error: undefined
 }
 

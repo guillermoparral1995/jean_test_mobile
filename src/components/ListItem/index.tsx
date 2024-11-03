@@ -1,4 +1,6 @@
-import { EllipsisVertical } from '@tamagui/lucide-icons'
+import type { IconProps } from '@tamagui/helpers-icon'
+
+import React from 'react'
 import { ListItem as TamaguiListItem } from 'tamagui'
 
 interface CardProps<T> {
@@ -9,9 +11,8 @@ interface CardProps<T> {
   onMore?: (prop: T) => void
   onLess?: (prop: T) => void
   isFinalized?: boolean
-  hasOptions?: boolean
   hasSeparatedItems?: boolean
-  iconAfter?: any
+  iconAfter?: React.ReactElement | React.NamedExoticComponent<IconProps>
 }
 
 const ListItem = <T extends object>({
@@ -20,7 +21,6 @@ const ListItem = <T extends object>({
   subLabel,
   onSelect,
   isFinalized,
-  hasOptions,
   hasSeparatedItems,
   iconAfter,
 }: CardProps<T>) => {
@@ -33,7 +33,7 @@ const ListItem = <T extends object>({
       backgroundColor={isFinalized ? 'lightgreen' : undefined}
       title={label}
       subTitle={subLabel}
-      iconAfter={hasOptions ? EllipsisVertical : iconAfter}
+      iconAfter={iconAfter}
     />
   )
 }

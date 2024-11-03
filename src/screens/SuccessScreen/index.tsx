@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 const SuccessScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Success'>
-> = ({ navigation }) => {
+> = ({ navigation, route }) => {
   const queryClient = useQueryClient()
   const dispatch = useDispatch()
   const handleGoHome = () => {
@@ -23,7 +23,11 @@ const SuccessScreen: React.FC<
     <View style={styles.container}>
       <YStack gap={10}>
         <H2>{'Success :)'}</H2>
-        <H3>New invoice was created</H3>
+        <H3>
+          {route.params.isEdit
+            ? 'Invoice was updated successfully'
+            : 'New invoice was created'}
+        </H3>
       </YStack>
 
       <ContinueButton onPress={handleGoHome} label="Go home" />

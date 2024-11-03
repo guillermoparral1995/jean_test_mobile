@@ -3,8 +3,18 @@ import React, { useCallback, useState } from 'react'
 import { FlatList } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { useDispatch } from 'react-redux'
-import { Button, H1, Separator, Sheet, Spinner, View, YStack } from 'tamagui'
-import { Plus } from '@tamagui/lucide-icons'
+import {
+  Button,
+  H1,
+  Separator,
+  Sheet,
+  Spinner,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from 'tamagui'
+import { EllipsisVertical, Plus } from '@tamagui/lucide-icons'
 
 import { useApi } from '../../api'
 import ListItem from '../../components/ListItem'
@@ -36,7 +46,6 @@ const HomeScreen: React.FC<
       await apiClient.deleteInvoice(invoiceToDelete.id)
     },
     onSuccess: () => {
-      setIsSheetOpen(false)
       Toast.show({
         type: 'success',
         position: 'bottom',
@@ -44,7 +53,6 @@ const HomeScreen: React.FC<
       })
     },
     onError: () => {
-      setIsSheetOpen(false)
       Toast.show({
         type: 'error',
         position: 'bottom',
@@ -149,8 +157,13 @@ const HomeScreen: React.FC<
                 subLabel={getFormattedDate(item.date!)}
                 onSelect={handleSelect}
                 isFinalized={item.finalized}
-                hasOptions={!item.finalized}
                 hasSeparatedItems
+                iconAfter={
+                  <XStack gap={10} alignItems="center">
+                    <Text>{`$${item.total}`}</Text>
+                    {!item.finalized && <EllipsisVertical />}
+                  </XStack>
+                }
               />
             )
           }}

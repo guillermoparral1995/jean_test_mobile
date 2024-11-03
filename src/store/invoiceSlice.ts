@@ -6,11 +6,13 @@ import { Invoice, InvoiceState, SelectedProducts } from '../types'
 import { mapInvoiceToState } from '../utils'
 
 const initialState: InvoiceState = {
+  id: null,
   date: null,
   deadline: null,
   paid: true,
   finalized: false,
   products: {},
+  isEdit: false,
 }
 
 export const invoiceSlice = createSlice({

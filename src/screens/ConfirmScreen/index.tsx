@@ -9,29 +9,40 @@ import ListItem from '../../components/ListItem'
 import {
   getFormattedDate,
   getFullName,
+  getTotalInvoiceAmount,
   mapStateToCreatePayload,
+  mapStateToUpdatePayload,
 } from '../../utils'
 import { currentInvoice } from '../../store/selectors'
 import { SelectedProduct } from '../../types'
 import { type RootStackParamList } from '../../Router'
+import { useMutation } from '@tanstack/react-query'
 
 const ConfirmScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Confirm'>
 > = ({ navigation }) => {
-  const invoiceToCreate = useSelector(currentInvoice)
+  const invoiceToSave = useSelector(currentInvoice)
   const apiClient = useApi()
-
-  const handleCreate = async () => {
-    try {
-      await apiClient.postInvoices(null, {
-        invoice: mapStateToCreatePayload(invoiceToCreate),
-      })
-      navigation.navigate('Success')
-    } catch (e) {
+  const { mutate: saveInvoice } = useMutation({
+    mutationFn: async () => {
+      if (invoiceToSave.isEdit) {
+        await apiClient.putInvoice(invoiceToSave.id!, {
+          invoice: mapStateToUpdatePayload(invoiceToSave),
+        })
+      } else {
+        await apiClient.postInvoices(null, {
+          invoice: mapStateToCreatePayload(invoiceToSave),
+        })
+      }
+    },
+    onSuccess: () => {
+      navigation.navigate('Success', { isEdit: invoiceToSave.isEdit })
+    },
+    onError: (e) => {
       console.error(e)
       navigation.navigate('Error')
-    }
-  }
+    },
+  })
 
   return (
     <View style={styles.container}>
@@ -45,7 +56,7 @@ const ConfirmScreen: React.FC<
           <YStack gap={10}>
             <Text>Customer</Text>
             <View borderRadius={10} padding={10} backgroundColor="white">
-              <Text>{getFullName(invoiceToCreate.customer!)}</Text>
+              <Text>{getFullName(invoiceToSave.customer!)}</Text>
             </View>
           </YStack>
           <YStack gap={10}>
@@ -54,7 +65,7 @@ const ConfirmScreen: React.FC<
               scrollEnabled={false}
               bounces={false}
               style={styles.searchResults}
-              data={Object.entries(invoiceToCreate.products)}
+              data={Object.entries(invoiceToSave.products)}
               renderItem={({ item }) => (
                 <ListItem
                   item={item}
@@ -67,24 +78,33 @@ const ConfirmScreen: React.FC<
             />
           </YStack>
           <YStack gap={10}>
+            <Text>Invoice total</Text>
+            <View borderRadius={10} padding={10} backgroundColor="white">
+              <Text>{getTotalInvoiceAmount(invoiceToSave.products)}</Text>
+            </View>
+          </YStack>
+          <YStack gap={10}>
             <Text>Date</Text>
             <View borderRadius={10} padding={10} backgroundColor="white">
-              <Text>{getFormattedDate(invoiceToCreate.date!)}</Text>
+              <Text>{getFormattedDate(invoiceToSave.date!)}</Text>
             </View>
           </YStack>
           <YStack gap={10}>
             <Text>Deadline</Text>
             <View borderRadius={10} padding={10} backgroundColor="white">
               <Text>
-                {invoiceToCreate.deadline
-                  ? getFormattedDate(invoiceToCreate.deadline)
+                {invoiceToSave.deadline
+                  ? getFormattedDate(invoiceToSave.deadline)
                   : 'None'}
               </Text>
             </View>
           </YStack>
         </YStack>
       </ScrollView>
-      <ContinueButton onPress={handleCreate} label={'Create'} />
+      <ContinueButton
+        onPress={saveInvoice}
+        label={invoiceToSave.isEdit ? 'Finish' : 'Create'}
+      />
     </View>
   )
 }
