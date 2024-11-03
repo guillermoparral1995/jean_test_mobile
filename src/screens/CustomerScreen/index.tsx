@@ -1,7 +1,7 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
 import { StyleSheet } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
-import { Text, View, YStack, debounce } from 'tamagui'
+import React, { useCallback, useState } from 'react'
+import { Text, View, YStack } from 'tamagui'
 
 import { useApi } from '../../api'
 import { type Components } from '../../api/generated/client'
@@ -14,6 +14,7 @@ import { X as IconX } from '@tamagui/lucide-icons'
 import SearchBox from '../../components/SearchBox'
 import ContinueButton from '../../components/ContinueButton'
 import { type RootStackParamList } from '../../Router'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 const CustomerScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Customer'>
@@ -23,36 +24,49 @@ const CustomerScreen: React.FC<
     Components.Schemas.Customer | undefined
   >(currentCustomer)
   const [customerSearch, setCustomerSearch] = useState<string>('')
-  const [customers, setCustomers] = useState<Components.Schemas.Customer[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const apiClient = useApi()
   const dispatch = useDispatch()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchCustomers = useCallback(
-    debounce(async (query: string) => {
-      setIsLoading(true)
-      try {
-        const response = await apiClient.getSearchCustomers({
-          query,
-        })
-        setCustomers(response.data.customers)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setIsLoading(false)
-      }
-    }, 200),
-    [apiClient],
-  )
+  const fetchCustomers = async ({ pageParam }: { pageParam: number }) => {
+    const response = await apiClient.getSearchCustomers({
+      query: customerSearch,
+      page: pageParam,
+    })
+    return response.data
+  }
 
-  useEffect(() => {
-    if (customerSearch !== '') {
-      fetchCustomers(customerSearch)
-    } else {
-      setCustomers([])
-    }
-  }, [customerSearch, fetchCustomers])
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    isFetching,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['customers', customerSearch],
+    queryFn: fetchCustomers,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const totalPages = lastPage.pagination?.total_pages
+      if (lastPage.pagination?.page < totalPages) {
+        return lastPage.pagination?.page + 1
+      }
+    },
+    enabled: customerSearch !== '',
+  })
+
+  const customers =
+    data?.pages
+      .map((page) => page.customers)
+      .reduce(
+        (prevCustomers, currentCustomers) => [
+          ...prevCustomers,
+          ...currentCustomers,
+        ],
+        [],
+      ) ?? []
+
+  const handleEndReached = () => !isFetching && hasNextPage && fetchNextPage()
 
   const handleChange = useCallback(async (e: string) => {
     setCustomerSearch(e)
@@ -90,8 +104,10 @@ const CustomerScreen: React.FC<
           renderLabel={getFullName}
           onSelect={handleSelect}
           keyExtractor={(customer) => customer.id.toString()}
-          loading={isLoading}
+          loading={isLoading || isFetching || isFetchingNextPage}
+          onEndReached={handleEndReached}
         />
+
         {selectedCustomer ? (
           <ListItem
             item={selectedCustomer}
@@ -113,10 +129,6 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 20,
     justifyContent: 'space-between',
-  },
-  searchResults: {
-    borderRadius: 10,
-    width: '100%',
   },
 })
 

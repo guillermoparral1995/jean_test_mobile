@@ -6,14 +6,17 @@ import { clearInvoice } from '../../store/invoiceSlice'
 import { type RootStackParamList } from '../../Router'
 import { StyleSheet } from 'react-native'
 import ContinueButton from '../../components/ContinueButton'
+import { useQueryClient } from '@tanstack/react-query'
 
 const SuccessScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Success'>
 > = ({ navigation }) => {
+  const queryClient = useQueryClient()
   const dispatch = useDispatch()
   const handleGoHome = () => {
     dispatch(clearInvoice())
-    navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
+    queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    navigation.popToTop()
   }
 
   return (

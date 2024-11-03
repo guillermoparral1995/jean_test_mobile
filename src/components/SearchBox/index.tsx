@@ -13,6 +13,7 @@ interface SearchBoxProps<T> {
   renderLabel: (item: T) => string
   onSelect: (prop: T) => void
   keyExtractor: (prop: T) => string
+  onEndReached?: () => void
 }
 
 const SearchBox = <T extends object>({
@@ -24,6 +25,7 @@ const SearchBox = <T extends object>({
   renderLabel,
   onSelect,
   keyExtractor,
+  onEndReached,
 }: SearchBoxProps<T>) => {
   return (
     <>
@@ -56,6 +58,7 @@ const SearchBox = <T extends object>({
             <ListItem item={{}} label={'No results for this query :('} />
           ) : null
         }
+        onEndReached={onEndReached}
       />
     </>
   )

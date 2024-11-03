@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { Text, View, YStack, debounce } from 'tamagui'
+import { Text, View, YStack } from 'tamagui'
 import { Components } from '../../api/generated/client'
 import { useApi } from '../../api'
 import { useDispatch, useSelector } from 'react-redux'
@@ -13,49 +13,63 @@ import SearchBox from '../../components/SearchBox'
 import QuantitySelector from '../../components/QuantitySelector'
 import ContinueButton from '../../components/ContinueButton'
 import { type RootStackParamList } from '../../Router'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 const ProductsScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Products'>
 > = ({ navigation }) => {
   const currentSelectedProducts = useSelector(currentInvoiceProducts)
   const [productSearch, setProductSearch] = useState<string>('')
-  const [products, setProducts] = useState<Components.Schemas.Product[]>([])
   const [selectedProducts, setSelectedProducts] = useState<SelectedProducts>(
     currentSelectedProducts,
   )
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const apiClient = useApi()
   const dispatch = useDispatch()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchProducts = useCallback(
-    debounce(async (query: string) => {
-      setIsLoading(true)
-      try {
-        const response = await apiClient.getSearchProducts({
-          query,
-        })
-        setProducts(response.data.products)
-      } catch (e) {
-        console.error(e)
-      } finally {
-        setIsLoading(false)
+  const fetchProducts = async ({ pageParam }: { pageParam: number }) => {
+    const response = await apiClient.getSearchProducts({
+      query: productSearch,
+      page: pageParam,
+    })
+    return response.data
+  }
+
+  const {
+    data,
+    isLoading,
+    hasNextPage,
+    isFetching,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['products', productSearch],
+    queryFn: fetchProducts,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      const totalPages = lastPage.pagination?.total_pages
+      if (lastPage.pagination?.page < totalPages) {
+        return lastPage.pagination?.page + 1
       }
-    }, 500),
-    [apiClient],
-  )
+    },
+    enabled: productSearch !== '',
+  })
 
-  useEffect(() => {
-    if (productSearch !== '') {
-      fetchProducts(productSearch)
-    } else {
-      setProducts([])
-    }
-  }, [fetchProducts, productSearch])
+  const products =
+    data?.pages
+      .map((page) => page.products)
+      .reduce(
+        (prevProducts, currentProducts) => [
+          ...prevProducts,
+          ...currentProducts,
+        ],
+        [],
+      ) ?? []
 
-  const handleChange = useCallback(async (e: string) => {
+  const handleEndReached = () => !isFetching && hasNextPage && fetchNextPage()
+
+  const handleChange = async (e: string) => {
     setProductSearch(e)
-  }, [])
+  }
 
   const handleCancel = useCallback(() => {
     setProductSearch('')
@@ -132,12 +146,13 @@ const ProductsScreen: React.FC<
         <SearchBox
           onChangeQuery={handleChange}
           onCancel={handleCancel}
+          onEndReached={handleEndReached}
           query={productSearch}
           options={products}
           onSelect={handleSelect}
           renderLabel={(item) => item.label}
           keyExtractor={(item) => item.id.toString()}
-          loading={isLoading}
+          loading={isLoading || isFetching || isFetchingNextPage}
         />
       </YStack>
       <FlatList<SelectedProduct>

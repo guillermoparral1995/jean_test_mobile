@@ -1,5 +1,5 @@
 import { type NativeStackScreenProps } from '@react-navigation/native-stack'
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState } from 'react'
 import { FlatList } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { useDispatch } from 'react-redux'
@@ -12,26 +12,83 @@ import { setInvoice } from '../../store/invoiceSlice'
 import { Invoice, InvoiceUpdatePayload } from '../../types'
 import { getFormattedDate, getFullName } from '../../utils'
 import { type RootStackParamList } from '../../Router'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 const HomeScreen: React.FC<
   NativeStackScreenProps<RootStackParamList, 'Home'>
 > = ({ navigation }) => {
-  const [invoices, setInvoices] = useState<Invoice[]>([])
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | undefined>()
   const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const apiClient = useApi()
   const dispatch = useDispatch()
-  const fetchInvoices = useCallback(async () => {
-    setIsLoading(true)
-    const response = await apiClient.getInvoices()
-    setInvoices(response.data.invoices)
-    setIsLoading(false)
-  }, [apiClient])
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    fetchInvoices()
-  }, [fetchInvoices])
+  const { data: invoices, isLoading } = useQuery({
+    queryKey: ['invoices'],
+    queryFn: async ({ queryKey: _key }) => {
+      const response = await apiClient.getInvoices()
+      return response.data.invoices
+    },
+  })
+
+  const { mutate: deleteInvoice } = useMutation({
+    mutationFn: async (invoiceToDelete: Invoice) => {
+      await apiClient.deleteInvoice(invoiceToDelete.id)
+    },
+    onSuccess: () => {
+      setIsSheetOpen(false)
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Deleted successfully',
+      })
+    },
+    onError: () => {
+      setIsSheetOpen(false)
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'There was an error',
+        text2: 'Please try again',
+      })
+    },
+    onSettled: () => {
+      setIsSheetOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    },
+  })
+
+  const { mutate: finalizeInvoice } = useMutation({
+    mutationFn: async (invoiceToFinalize: Invoice) => {
+      const payload: InvoiceUpdatePayload = {
+        ...invoiceToFinalize,
+        customer_id: invoiceToFinalize.customer_id!,
+        finalized: true,
+      }
+      await apiClient.putInvoice(invoiceToFinalize.id, {
+        invoice: payload,
+      })
+    },
+    onSuccess: () => {
+      Toast.show({
+        type: 'success',
+        position: 'bottom',
+        text1: 'Finalized successfully',
+      })
+    },
+    onError: () => {
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: 'There was an error',
+        text2: 'Please try again',
+      })
+    },
+    onSettled: () => {
+      setIsSheetOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    },
+  })
 
   const handleCreateNewInvoice = useCallback(
     () => navigation.navigate('Customer'),
@@ -60,57 +117,15 @@ const HomeScreen: React.FC<
 
   const handleFinalizeInvoice = useCallback(async () => {
     if (selectedInvoice) {
-      try {
-        const payload: InvoiceUpdatePayload = {
-          ...selectedInvoice,
-          customer_id: selectedInvoice.customer_id!,
-          finalized: true,
-        }
-        await apiClient.putInvoice(selectedInvoice.id, {
-          invoice: payload,
-        })
-        fetchInvoices()
-        setIsSheetOpen(false)
-        Toast.show({
-          type: 'success',
-          position: 'bottom',
-          text1: 'Finalized successfully',
-        })
-      } catch (e: any) {
-        console.error(e?.response?.data)
-        Toast.show({
-          type: 'error',
-          position: 'bottom',
-          text1: 'There was an error',
-          text2: 'Please try again',
-        })
-      }
+      finalizeInvoice(selectedInvoice)
     }
-  }, [apiClient, fetchInvoices, selectedInvoice])
+  }, [finalizeInvoice, selectedInvoice])
 
   const handleDeleteInvoice = useCallback(async () => {
     if (selectedInvoice) {
-      try {
-        await apiClient.deleteInvoice(selectedInvoice.id)
-        fetchInvoices()
-        setIsSheetOpen(false)
-        Toast.show({
-          type: 'success',
-          position: 'bottom',
-          text1: 'Deleted successfully',
-        })
-      } catch (e: any) {
-        console.error(e?.response?.data)
-        setIsSheetOpen(false)
-        Toast.show({
-          type: 'error',
-          position: 'bottom',
-          text1: 'There was an error',
-          text2: 'Please try again',
-        })
-      }
+      deleteInvoice(selectedInvoice)
     }
-  }, [apiClient, fetchInvoices, selectedInvoice])
+  }, [deleteInvoice, selectedInvoice])
 
   return (
     <View flex={1} padding={20} paddingTop={40}>

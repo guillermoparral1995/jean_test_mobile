@@ -5,6 +5,7 @@ import { Button } from 'tamagui'
 import { RootStackParamList } from '../../Router'
 import { useDispatch } from 'react-redux'
 import { clearInvoice } from '../../store/invoiceSlice'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface CancelButtonProps<T extends keyof RootStackParamList> {
   navigation: NativeStackNavigationProp<RootStackParamList, T>
@@ -14,16 +15,11 @@ const CancelButton = <T extends keyof RootStackParamList>({
   navigation,
 }: CancelButtonProps<T>) => {
   const dispatch = useDispatch()
+  const queryClient = useQueryClient()
   const handlePress = () => {
-    console.log('Dispatching clearInvoice...')
     dispatch(clearInvoice())
-    console.log('Resetting navigation stack to Home...')
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-      key: Date.now().toString(),
-    })
-    console.log('Navigation state after reset:', navigation.getState())
+    queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    navigation.popToTop()
   }
   return <Button backgroundColor={'white'} icon={IconX} onPress={handlePress} />
 }
