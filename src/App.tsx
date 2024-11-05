@@ -7,12 +7,13 @@ import defaultConfig from '@tamagui/config/v3'
 
 import { ApiProvider } from './api'
 import Router from './Router'
-import { store } from './store'
+import { makeStore } from './store'
 import ErrorBoundary from './ErrorBoundary'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const tamaguiConfig = createTamagui(defaultConfig)
 const queryClient = new QueryClient()
+const store = makeStore()
 
 const App = () => {
   return (

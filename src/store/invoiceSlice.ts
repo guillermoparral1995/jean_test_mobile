@@ -15,30 +15,31 @@ const initialState: InvoiceState = {
   isEdit: false,
 }
 
-export const invoiceSlice = createSlice({
-  name: 'invoice',
-  initialState,
-  reducers: {
-    setInvoice: (_state, action: PayloadAction<Invoice>) =>
-      mapInvoiceToState(action.payload),
-    setInvoiceCustomer: (
-      state,
-      action: PayloadAction<Components.Schemas.Customer>,
-    ) => {
-      state.customer = action.payload
+export const invoiceSlice = (mockInitialState?: InvoiceState) =>
+  createSlice({
+    name: 'invoice',
+    initialState: mockInitialState ?? initialState,
+    reducers: {
+      setInvoice: (_state, action: PayloadAction<Invoice>) =>
+        mapInvoiceToState(action.payload),
+      setInvoiceCustomer: (
+        state,
+        action: PayloadAction<Components.Schemas.Customer>,
+      ) => {
+        state.customer = action.payload
+      },
+      setInvoiceProducts: (state, action: PayloadAction<SelectedProducts>) => {
+        state.products = action.payload
+      },
+      setInvoiceDate: (state, action: PayloadAction<string>) => {
+        state.date = action.payload
+      },
+      setInvoiceDeadline: (state, action: PayloadAction<string>) => {
+        state.deadline = action.payload
+      },
+      clearInvoice: () => initialState,
     },
-    setInvoiceProducts: (state, action: PayloadAction<SelectedProducts>) => {
-      state.products = action.payload
-    },
-    setInvoiceDate: (state, action: PayloadAction<string>) => {
-      state.date = action.payload
-    },
-    setInvoiceDeadline: (state, action: PayloadAction<string>) => {
-      state.deadline = action.payload
-    },
-    clearInvoice: () => initialState,
-  },
-})
+  })
 
 export const {
   setInvoice,
@@ -47,6 +48,7 @@ export const {
   setInvoiceDate,
   setInvoiceDeadline,
   clearInvoice,
-} = invoiceSlice.actions
+} = invoiceSlice().actions
 
-export default invoiceSlice.reducer
+export default (mockInitialState?: InvoiceState) =>
+  invoiceSlice(mockInitialState).reducer

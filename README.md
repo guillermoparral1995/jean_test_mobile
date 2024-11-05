@@ -1,47 +1,25 @@
-# Jean Test Mobile
+## Pennylane Challenge
 
-This repository contains instructions for the React Native hiring test, as well as a bootstrapped React Native app with which to start.
+### Introduction
 
-## Your mission
+This app uses React Native from the setup provided in the original repo, and made use of several dependencies that were already preinstalled:
 
-> ***Implement an invoicing app with React Native***
+- TanStack Query as data fetching/caching layer alongside openapi-client-axios
+- Tamagui for several UI components
 
-### Objectives
+I aditionally used:
 
-The goal is to leverage an existing REST HTTP API to build the prototype of an invoicing app.
-
-This prototype allows users to perform simple actions around their invoices:
-- List existing invoices with relevant details
-- Create new invoices
-- Manage existing invoices
-  - Finalize invoices
-  - Delete invoices
-
-We do not expect the prototype to be feature-rich as we'll mainly focus on code quality, performance & user experience.
-We expect you to adopt standard coding practices & setup, including testing, as if you were working on a real application with other coworkers.
-
-Feel free to use pre-installed dependencies or add new ones if you have a legitimate use of them.
-
-Please take the time to identify advanced features that could be added in the future & write down tech improvements/ideas you could work on.
-
-For each feature/tech improvement, we want to understand:
-- What led you to think about this
-- Why it would be useful
-- What might be missing for you to implement it (API limitations, technical constraints)
-
-### Deliverable
-
-- Create a private GitHub repository containing the source code of your application
-- Invite the following GitHub users to it: `@julienpinquie` `@soyoh` `@LucaGaspa` `@greeeg` 
-
-## What you're working with
-
-Please note that we rely on [`asdf`](https://github.com/asdf-vm/asdf) to manage Ruby/Node/Yarn versions. Feel free to use something else & have a look at `.tool-versions` if you run in any trouble.
+- Redux through Redux Toolkit and react-redux for state management, particularly during the edit/creation flows
+- React Navigation to handle the stack navigation in the app
+- react-native-date-picker for the date pickers in the Dates screen
 
 ### Getting started
 
+This repository was created by forking the original repository shared in the assignment, so startup should be almost identical
+
+
 ```sh
-git clone git@github.com:pennylane-hq/jean_test_mobile.git
+git clone git@github.com:guillermoparral1995/jean_test_mobile.git
 
 cd jean_test_mobile
 
@@ -49,42 +27,49 @@ bin/pull
 
 # Make sure to add your token (sent by email)
 cp .env.example .env
-
 yarn start
 
 yarn ios
 ```
 
-### Data model
+### Explanation
 
-The REST API contains 4 resources: customers, products, invoices & invoice lines.
+For this case study I provided the following functionality:
 
-Side notes:
-- Invoices contain multiple invoice lines.
-- Invoice lines are accessed via their invoice. To update them, use the relevant invoice API endpoints.
-- Once the `finalized` field is set to `true` for invoices, no field may be modified except for `paid`.
+- List existing invoices with relevant details: customer, price, total paid, invoice date and status
+- Create new invoices
+- Manage existing invoices
+  - Edit invoices
+  - Finalize invoices
+  - Mark invoices as paid
+  - Delete invoices
 
-The REST API base URL is `https://jean-test-api.herokuapp.com/`.
-Each API call must be authenticated using a `X-SESSION` header with the provided token.
+The behaviour may differ a bit from how it works in real life, but based on the provided API I made the following assumptions
 
-An OpenAPI definition for this REST API is avaible [here](https://jean-test-api.herokuapp.com/api-docs/index.html).
+- Invoices are created as unfinalized and unpaid by default
+- Once an invoice is created, it can be deleted, finalized or edited
+- Once an invoice is finalized, it can only be marked as paid (it can no longer be deleted or edited)
+- Once it's paid, there's no more actions that can be applied to an invoice
 
-The invoices list endpoint supports a `filter` query param which can be used as described in [our external API documentation](https://pennylane.readme.io/docs/how-to-set-up-filters).
+The creation/edit flow follows a wizard pattern, where extra information is added in successive steps and can be cancelled at any point, resetting the creation flow to its initial state
 
-### API client
+### Future improvements / leftovers
 
-An API client based on `openapi-client-axios` is available through a React Context set up in `src/api/index.tsx`. The provider is mounted in `src/App.tsx` & the context can be consumed using the `useApi` hook from `src/api/index.tsx`.
+- I have tested the filter parameter extensively for the list invoices endpoint, but was not able to get any different results. Having had more time, I would have liked to implement a filter functionality that works client side, in order to only show invoices of a specific status
+- With the existing API one can only create invoices for existing customers or products. Something that could be useful would be to add new customers or products, either from a dedicated flow or in the invoice creation flow
+- A more advanced feature that would be great would be the possibility of importing invoices from a file to be uploaded to the app via Drive or stored in memory (or even by scanning a printed invoice!)
 
-```tsx
-const MyComponent = () => {
-  const apiClient = useApi()
 
-  useEffect(() => {
-    apiClient.getInvoices().then(res => {
-      // Do something...
-    })
-  }, [apiClient])
+### Testing
 
-  return null
-}
+I created integration tests for each separate screen by wrapping them in a dedicate `TestWrapper` component, which has all providers except for the stack navigator, since I wanted to test each screen in isolation. This wrapper also creates a separate `QueryClient` per test, in order to avoid cache conflicts between tests for those screens that make HTTP requests. It also provides the possibility of passing an initial state to the Redux provider for screens that select info from the store on render, which was necessary due to each screen being tested in isolation
+
+In order to mock HTTP requests I used `nock` library which provides a simple and easy-to-use interface to mock requests. This way, there is no need to mock openapi-client-axios or TanStack query, which is helpful to run the application closer to how it does in reality
+
+Aside from that I also included unit tests for each React component. Ideally, I would have also liked to setup E2E tests with Appium, but that would have taken a longer time to setup so I decided to leave it aside for now.
+
+To run the tests, just run
+
+```
+yarn test
 ```

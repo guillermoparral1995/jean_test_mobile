@@ -78,6 +78,7 @@ const ProductsScreen: React.FC<
 
   const handleSelect = useCallback(
     (product: Components.Schemas.Product) => {
+      console.log('selected', selectedProducts)
       if (!selectedProducts[product.label]) {
         setSelectedProducts({
           ...selectedProducts,
@@ -136,8 +137,11 @@ const ProductsScreen: React.FC<
   )
 
   const handleContinue = useCallback(() => {
-    dispatch(setInvoiceProducts(selectedProducts))
-    navigation.navigate('Dates')
+    if (Object.entries(selectedProducts).length) {
+      console.log('continue', selectedProducts)
+      dispatch(setInvoiceProducts(selectedProducts))
+      navigation.navigate('Dates')
+    }
   }, [dispatch, navigation, selectedProducts])
 
   return (

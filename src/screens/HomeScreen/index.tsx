@@ -42,6 +42,8 @@ const HomeScreen: React.FC<
     },
   })
 
+  console.log('invoices', invoices?.[0])
+
   const { mutate: deleteInvoice } = useMutation({
     mutationFn: async (invoiceToDelete: Invoice) => {
       await apiClient.deleteInvoice(invoiceToDelete.id)
@@ -214,7 +216,9 @@ const HomeScreen: React.FC<
               />
             )
           }}
-          ListEmptyComponent={<H3>{'Nothing here yet! :)'}</H3>}
+          ListEmptyComponent={
+            !isLoading ? <H3>{'Nothing here yet! :)'}</H3> : undefined
+          }
           ListFooterComponent={isLoading ? <Spinner /> : null}
         />
       </YStack>

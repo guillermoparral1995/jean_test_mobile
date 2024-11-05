@@ -11,6 +11,7 @@ interface RadioGroupWithDateProps<T extends string> {
   date: Date
   onDatePickerConfirm: (date: Date) => void
   onDatePickerCancel: () => void
+  testID?: string
 }
 
 const RadioGroupWithDate = <T extends string>({
@@ -23,6 +24,7 @@ const RadioGroupWithDate = <T extends string>({
   onValueChange,
   onDatePickerConfirm,
   onDatePickerCancel,
+  testID,
 }: RadioGroupWithDateProps<T>) => {
   return (
     <>
@@ -47,6 +49,7 @@ const RadioGroupWithDate = <T extends string>({
       </RadioGroup>
       {showDatePicker && (
         <DatePicker
+          testID={testID}
           modal
           mode="date"
           open={isDatePickerOpen}

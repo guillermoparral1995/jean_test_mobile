@@ -106,6 +106,7 @@ const CustomerScreen: React.FC<
           keyExtractor={(customer) => customer.id.toString()}
           loading={isLoading || isFetching || isFetchingNextPage}
           onEndReached={handleEndReached}
+          testID={'customer-search'}
         />
 
         {selectedCustomer ? (

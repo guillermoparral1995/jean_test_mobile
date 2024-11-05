@@ -14,6 +14,7 @@ interface SearchBoxProps<T> {
   onSelect: (prop: T) => void
   keyExtractor: (prop: T) => string
   onEndReached?: () => void
+  testID?: string
 }
 
 const SearchBox = <T extends object>({
@@ -26,6 +27,7 @@ const SearchBox = <T extends object>({
   onSelect,
   keyExtractor,
   onEndReached,
+  testID,
 }: SearchBoxProps<T>) => {
   return (
     <>
@@ -37,6 +39,7 @@ const SearchBox = <T extends object>({
           width={'100%'}
         />
         <Button
+          testID="delete-search"
           borderColor={'gray'}
           width={20}
           onPress={onCancel}
@@ -44,6 +47,7 @@ const SearchBox = <T extends object>({
         />
       </XStack>
       <FlatList
+        testID={testID}
         style={styles.searchResults}
         data={options}
         renderItem={({ item }: { item: T }) => (
@@ -53,7 +57,7 @@ const SearchBox = <T extends object>({
         ItemSeparatorComponent={Separator}
         ListFooterComponent={
           loading ? (
-            <Spinner />
+            <Spinner testID="loading-spinner" />
           ) : query !== '' && !options.length ? (
             <ListItem item={{}} label={'No results for this query :('} />
           ) : null

@@ -88,6 +88,8 @@ export const mapStateToCreatePayload = (
 ): InvoiceCreatePayload => {
   const invoiceLineAttributes = Object.values(invoice.products).map(
     ({ product, qty }) => {
+      console.log('quantity', qty)
+
       return {
         product_id: product.id,
         quantity: qty,
@@ -99,6 +101,7 @@ export const mapStateToCreatePayload = (
       }
     },
   )
+
   return {
     customer_id: invoice.customer!.id,
     finalized: invoice.finalized,

@@ -21,7 +21,14 @@ const CancelButton = <T extends keyof RootStackParamList>({
     queryClient.invalidateQueries({ queryKey: ['invoices'] })
     navigation.popToTop()
   }
-  return <Button backgroundColor={'white'} icon={IconX} onPress={handlePress} />
+  return (
+    <Button
+      testID="cancel-button"
+      backgroundColor={'white'}
+      icon={IconX}
+      onPress={handlePress}
+    />
+  )
 }
 
 export default CancelButton

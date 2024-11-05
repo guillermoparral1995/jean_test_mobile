@@ -26,6 +26,7 @@ const ConfirmScreen: React.FC<
   const { mutate: saveInvoice } = useMutation({
     mutationFn: async () => {
       if (invoiceToSave.isEdit) {
+        console.log('edit', mapStateToUpdatePayload(invoiceToSave))
         await apiClient.putInvoice(invoiceToSave.id!, {
           invoice: mapStateToUpdatePayload(invoiceToSave),
         })

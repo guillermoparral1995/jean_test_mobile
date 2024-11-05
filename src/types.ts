@@ -1,7 +1,4 @@
 import { type Components, type Paths } from './api/generated/client'
-import { store } from './store'
-
-export type State = ReturnType<typeof store.getState>
 
 export interface InvoiceState {
   id: number | null

@@ -72,6 +72,7 @@ const DateScreen: React.FC<
   }, [])
 
   const handleContinue = useCallback(() => {
+    if (validationError) return
     const formattedDate = date.toISOString().split('T')[0]
     dispatch(setInvoiceDate(formattedDate))
     if (hasDeadlineBeenSet && deadlineOption !== 'deadline_none') {
@@ -79,7 +80,7 @@ const DateScreen: React.FC<
       dispatch(setInvoiceDeadline(formattedDeadline))
     }
     navigation.navigate('Confirm')
-  }, [date, deadline, deadlineOption, dispatch, navigation])
+  }, [date, deadline, deadlineOption, dispatch, navigation, validationError])
 
   return (
     <View style={styles.container}>
@@ -96,6 +97,7 @@ const DateScreen: React.FC<
             date={date}
             onDatePickerConfirm={handleDatePickerConfirm}
             onDatePickerCancel={handleDatePickerCancel}
+            testID="date-picker"
           />
           {dateOption === 'date_select' && (
             <ListItem
@@ -109,7 +111,10 @@ const DateScreen: React.FC<
           <Text>What's the deadline for payment?</Text>
           <RadioGroupWithDate
             defaultValue="deadline_none"
-            options={{ deadline_none: 'None', deadline_select: 'Select date' }}
+            options={{
+              deadline_none: 'None',
+              deadline_select: 'Select deadline',
+            }}
             selectedValue={deadlineOption}
             onValueChange={handleDeadlineOptionChange}
             showDatePicker={deadlineOption === 'deadline_select'}
@@ -117,6 +122,7 @@ const DateScreen: React.FC<
             date={deadline}
             onDatePickerConfirm={handleDeadlinePickerConfirm}
             onDatePickerCancel={handleDeadlinePickerCancel}
+            testID="deadline-picker"
           />
           {deadlineOption === 'deadline_select' && (
             <ListItem
